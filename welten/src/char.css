@@ -1,0 +1,34 @@
+.c-line { stroke: #1b1430; stroke-linejoin: round; stroke-linecap: round; }
+.char { width: 100%; height: 100%; overflow: visible; }
+.char .c-body { transform-origin: 60px 145px; animation: bob 2.6s ease-in-out infinite; }
+.char .lid { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: blinkLid 4.2s infinite; }
+.rocco .lid { animation-delay: 1.3s; }
+@keyframes bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(-1.5deg); } }
+@keyframes blinkLid { 0%, 92%, 100% { transform: scaleY(0); } 95% { transform: scaleY(1); } }
+.char .tail { transform-origin: 92px 112px; animation: wag 1.6s ease-in-out infinite; }
+@keyframes wag { 50% { transform: rotate(10deg); } }
+.talking .char .beak-low, .talking .char .mouth { transform-box: fill-box; transform-origin: 50% 0; animation: yap .16s ease-in-out infinite alternate; }
+@keyframes yap { to { transform: scaleY(1.6) translateY(1px); } }
+.talking .char .c-body { animation: talkBob .35s ease-in-out infinite; }
+@keyframes talkBob { 50% { transform: translateY(-4px) rotate(1.5deg); } }
+.talking .char .wing-r, .talking .char .arm-r { transform-box: fill-box; transform-origin: 20% 10%; animation: gesture .5s ease-in-out infinite alternate; }
+@keyframes gesture { to { transform: rotate(-18deg); } }
+.mood-shock .c-body { animation: shock .35s ease-in-out 2; }
+@keyframes shock { 30% { transform: translateY(-10px) scale(1.05); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+.mood-happy .c-body { animation: hop .6s ease-in-out 2; }
+@keyframes hop { 50% { transform: translateY(-9px); } }
+.mood-sad .c-body { transform: translateY(4px) rotate(2deg); animation: none; }
+.qsvg .ln { stroke: var(--ink); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.qsvg .face { fill: rgba(255, 255, 255, .04); }
+.qsvg .tx { fill: var(--ink); font-family: var(--display); }
+.qsvg .tx.inv { fill: #1a1240; }
+.qsvg .hand { stroke: var(--gold); stroke-linecap: round; }
+.qsvg .accent { fill: var(--gold); }
+.qsvg .gear { fill: #c4b5fd; stroke: #8b5cf6; stroke-width: 2; }
+.qsvg .hub { fill: #ede9fe; }
+.qsvg .arrow { stroke: var(--gold); stroke-width: 4; }
+.qsvg .cell { fill: rgba(34, 211, 238, .12); stroke: var(--cyan); stroke-width: 2.5; }
+.qsvg .card { fill: #f8f7ff; stroke: #c7c3f5; stroke-width: 2; }
+.qsvg .card + .tx, .qsvg rect.card ~ .tx { fill: #1a1240; }
+.qsvg .shape { fill: var(--cyan); }
+.qsvg .shape.c1 { fill: #ff7ab6; } .qsvg .shape.c2 { fill: var(--cyan); } .qsvg .shape.c3 { fill: var(--gold); }

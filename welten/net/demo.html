@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raum-Demo</title>
+<style>
+  :root { --bg: #0d1028; --card: #171c40; --ink: #eef0ff; --muted: #9aa0d0; --gold: #ffc940; --ok: #2fe39f; --bad: #ff4d6d; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 system-ui, sans-serif; padding: 16px; }
+  h1 { font-size: 1.2rem; margin: 0 0 10px; }
+  button, input { font: inherit; }
+  button { background: var(--gold); color: #241500; border: 0; border-radius: 10px; padding: 8px 14px; font-weight: 700; cursor: pointer; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid #3a4180; }
+  input { background: #0a0d24; color: var(--ink); border: 1px solid #3a4180; border-radius: 10px; padding: 8px 10px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 14px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border-radius: 14px; padding: 12px; }
+  #field { position: relative; width: 100%; aspect-ratio: 3 / 2; background: radial-gradient(circle at 50% 40%, #1f2766, #0a0d24); border-radius: 14px; overflow: hidden; touch-action: none; }
+  .dot { position: absolute; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 12px; color: #10132e; transition: transform .07s linear; }
+  .dot.off { opacity: .35; }
+  .dot.me { outline: 3px solid #fff; }
+  .dot span { position: absolute; top: 30px; white-space: nowrap; color: var(--ink); font-weight: 600; font-size: 11px; }
+  #code { font-size: 2rem; font-weight: 800; letter-spacing: .15em; color: var(--gold); }
+  #qr img { width: 120px; background: #fff; border-radius: 8px; }
+  ul { margin: 0; padding-left: 18px; }
+  #log { height: 120px; overflow: auto; font: 12px/1.35 ui-monospace, monospace; color: var(--muted); }
+  #chatlog { height: 110px; overflow: auto; }
+  .opt { margin: 4px 4px 0 0; }
+  .ok { color: var(--ok); } .bad { color: var(--bad); }
+  #banner { padding: 8px 12px; border-radius: 10px; background: #4a3a00; margin-bottom: 10px; display: none; }
+</style>
+</head>
+<body>
+<h1>Raum-Demo <small id="role" style="color:var(--muted)"></small></h1>
+<div id="banner"></div>
+<div id="start" class="row">
+  <input id="name" placeholder="Name" maxlength="20">
+  <button id="host">Raum erstellen</button>
+  <input id="joincode" placeholder="Code" maxlength="4" size="5">
+  <button id="join" class="ghost">Beitreten</button>
+</div>
+<div id="hostinfo" class="row" hidden><div><div>Raumcode</div><div id="code"></div></div><div id="qr"></div></div>
+<div class="grid">
+  <div>
+    <div id="field"></div>
+    <p style="color:var(--muted)">Bewegen: Pfeiltasten/WASD oder ziehen. <label><input type="checkbox" id="wander"> automatisch wandern</label></p>
+  </div>
+  <div class="card">
+    <b>Spieler</b><ul id="players"></ul>
+    <hr style="border-color:#2a3070">
+    <b>Rätsel</b> <span id="phase" style="color:var(--muted)"></span>
+    <div id="riddle"></div>
+    <div class="row" id="hostctl" hidden><button id="ask">Rätsel stellen</button><button id="reveal" class="ghost">Auflösen</button></div>
+    <hr style="border-color:#2a3070">
+    <b>Chat</b><div id="chatlog"></div>
+    <div class="row"><input id="chat" placeholder="Nachricht" style="flex:1"><button id="say" class="ghost">Senden</button></div>
+  </div>
+</div>
+<div class="card" style="margin-top:12px"><b>Ereignisse</b><div id="log"></div></div>
+
+<script type="module">
+import { createRoom, joinRoom } from './room.js';
+
+const $ = s => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const opts = {};
+if (params.get('retry')) opts.retryForMs = Number(params.get('retry'));
+if (params.get('lost')) opts.lostAfterMs = Number(params.get('lost'));
+const COLORS = ['#ffc940', '#2fe39f', '#22d3ee', '#ff7ab6', '#a78bfa', '#fb923c', '#f87171', '#a3e635'];
+const RIDDLES = [
+  { text: 'Was wird nasser, je mehr es trocknet?', options: ['Ein Handtuch', 'Ein Schwamm', 'Regen'], correct: 0 },
+  { text: 'Welcher Monat hat 28 Tage?', options: ['Nur Februar', 'Alle', 'Keiner'], correct: 1 },
+];
+const demo = window.demo = { role: null, room: null, client: null, log: [], msgs: [], states: 0, errors: [] };
+const log = t => { demo.log.push(t); const l = $('#log'); l.textContent += `${new Date().toLocaleTimeString()} ${t}\n`; l.scrollTop = 1e9; };
+const banner = t => { const b = $('#banner'); b.textContent = t || ''; b.style.display = t ? 'block' : 'none'; };
+$('#name').value = params.get('name') || localStorage.getItem('demo-name') || '';
+$('#joincode').value = params.get('join') || '';
+
+// ---------- Darstellung (gleich für Gastgeber und Gast: alles kommt aus dem Zustand) ----------
+let state = {}, myId = null;
+function render() {
+  const players = state.players || {};
+  const f = $('#field');
+  for (const [id, p] of Object.entries(players)) {
+    let d = f.querySelector(`[data-id="${id}"]`);
+    if (!d) { d = document.createElement('div'); d.className = 'dot'; d.dataset.id = id; d.innerHTML = `${(p.name || '?')[0]}<span></span>`; f.appendChild(d); }
+    d.style.left = `${p.x * 100}%`; d.style.top = `${p.y * 100}%`; d.style.background = p.color;
+    d.classList.toggle('off', !p.online); d.classList.toggle('me', id === myId);
+    d.querySelector('span').textContent = p.name;
+  }
+  f.querySelectorAll('.dot').forEach(d => { if (!players[d.dataset.id]) d.remove(); });
+  $('#players').innerHTML = Object.entries(players).map(([id, p]) => `<li style="color:${p.online ? 'inherit' : 'var(--muted)'}">${p.name}${id === myId ? ' (du)' : ''} ${p.online ? '' : '– getrennt'}${p.rtt != null ? ` · ${p.rtt} ms` : ''}${state.answered?.[id] ? ' · 🔒' : ''}</li>`).join('');
+  $('#phase').textContent = state.phase ? `(${state.phase})` : '';
+  const q = state.question;
+  if (!q) $('#riddle').innerHTML = '<p style="color:var(--muted)">Noch kein Rätsel.</p>';
+  else {
+    const rev = state.phase === 'reveal' ? state.reveal : null;
+    $('#riddle').innerHTML = `<p>${q.text}</p>` + q.options.map((o, i) => `<button class="opt ${rev ? (i === rev.correct ? '' : 'ghost') : 'ghost'}" data-i="${i}" ${rev || demo.myAnswer != null ? 'disabled' : ''}>${o}${demo.myAnswer === i ? ' ✓' : ''}</button>`).join('')
+      + (rev ? `<p>${Object.entries(rev.answers).map(([id, a]) => `${players[id]?.name || id}: <span class="${a === rev.correct ? 'ok' : 'bad'}">${q.options[a]}</span>`).join('<br>') || 'Niemand hat geantwortet.'}</p>` : '');
+  }
+}
+$('#riddle').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) answer(Number(b.dataset.i)); });
+const chatLine = (from, text) => { const c = $('#chatlog'); c.innerHTML += `<div><b>${from}:</b> ${text.replace(/[<>&]/g, '')}</div>`; c.scrollTop = 1e9; };
+
+// ---------- eigene Bewegung ----------
+let pos = { x: Math.random() * .8 + .1, y: Math.random() * .8 + .1 }, dirty = true;
+const keys = new Set();
+addEventListener('keydown', e => { if (e.target.tagName !== 'INPUT') keys.add(e.key.toLowerCase()); });
+addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
+$('#field').addEventListener('pointermove', e => { if (!e.buttons) return; const r = e.currentTarget.getBoundingClientRect(); pos = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height }; dirty = true; });
+$('#wander').checked = params.get('auto') === '1';
+let ang = Math.random() * 6.28;
+setInterval(() => {
+  const s = 0.012;
+  if (keys.has('arrowleft') || keys.has('a')) { pos.x -= s; dirty = true; }
+  if (keys.has('arrowright') || keys.has('d')) { pos.x += s; dirty = true; }
+  if (keys.has('arrowup') || keys.has('w')) { pos.y -= s; dirty = true; }
+  if (keys.has('arrowdown') || keys.has('s')) { pos.y += s; dirty = true; }
+  if ($('#wander').checked) { ang += (Math.random() - .5) * .6; pos.x += Math.cos(ang) * .008; pos.y += Math.sin(ang) * .008; dirty = true; }
+  pos.x = Math.min(.97, Math.max(.03, pos.x)); pos.y = Math.min(.95, Math.max(.05, pos.y));
+  if (!dirty) return; dirty = false;
+  if (demo.role === 'host') demo.room.setState({ players: { host: { x: pos.x, y: pos.y } } });
+  else if (demo.client) demo.client.send({ type: 'move', x: pos.x, y: pos.y }, { key: 'move' }); // im Puffer zählt nur die letzte Position
+}, 1000 / 15);
+
+// ---------- Gastgeber ----------
+let answers = {};   // verdeckt: liegt nur beim Gastgeber, bis aufgelöst wird
+let riddleNo = 0;
+async function host() {
+  const name = $('#name').value.trim() || 'Gastgeber';
+  localStorage.setItem('demo-name', name);
+  try {
+    const room = demo.room = await createRoom({ name, ...opts });
+    demo.role = 'host'; myId = 'host';
+    $('#role').textContent = '· Gastgeber'; $('#start').hidden = true; $('#hostinfo').hidden = false; $('#hostctl').hidden = false;
+    $('#code').textContent = room.code; $('#qr').innerHTML = room.qrDataUrl ? `<img alt="QR" src="${room.qrDataUrl}">` : '';
+    let n = 0;
+    const color = () => COLORS[n++ % COLORS.length];
+    room.setState({ phase: 'lobby', players: { host: { name, x: pos.x, y: pos.y, color: color(), online: true } } }, { immediate: true });
+    room.on('state', e => { state = e.state; demo.states++; render(); });
+    room.on('peer-join', ({ peer }) => { log(`join ${peer.name} (${peer.id})`); room.setState({ players: { [peer.id]: { name: peer.name, x: .5, y: .5, color: color(), online: true } } }, { immediate: true }); });
+    room.on('peer-leave', ({ peer, reason }) => { log(`leave ${peer.name} (${reason})`); room.setState({ players: { [peer.id]: reason === 'left' ? null : { online: false } } }, { immediate: true }); });
+    room.on('peer-reconnect', ({ peer }) => { log(`reconnect ${peer.name}`); room.setState({ players: { [peer.id]: { online: true } } }, { immediate: true }); });
+    room.on('latency', ({ peer, rtt }) => room.setState({ players: { [peer.id]: { rtt } } }));
+    room.on('error', ({ error }) => { demo.errors.push(error.code); log(`error ${error.code}`); });
+    room.on('message', ({ from, msg }) => {
+      demo.msgs.push({ from: from.id, msg });
+      if (msg.type === 'move') room.setState({ players: { [from.id]: { x: msg.x, y: msg.y } } });
+      if (msg.type === 'chat') { chatLine(from.name, msg.text); room.broadcast({ type: 'chat', from: from.name, text: msg.text }); }
+      if (msg.type === 'answer' && state.phase === 'question' && !(from.id in answers)) {
+        answers[from.id] = msg.choice;
+        room.setState({ answered: { [from.id]: true } }, { immediate: true }); // nur DASS geantwortet wurde, nicht WAS
+      }
+    });
+    log(`Raum ${room.code} erstellt`);
+  } catch (e) { banner(e.message); demo.errors.push(e.code); }
+}
+function ask() {
+  const r = RIDDLES[riddleNo++ % RIDDLES.length];
+  answers = {}; demo.myAnswer = null; demo.secret = r.correct;
+  demo.room.setState({ phase: 'question', question: { text: r.text, options: r.options }, answered: null, reveal: null }, { immediate: true });
+}
+function reveal() {
+  demo.room.setState({ phase: 'reveal', reveal: { correct: demo.secret, answers: { ...answers } } }, { immediate: true });
+}
+$('#ask').onclick = ask; $('#reveal').onclick = reveal;
+
+// ---------- Gast ----------
+async function join(code) {
+  const name = $('#name').value.trim() || 'Gast';
+  localStorage.setItem('demo-name', name);
+  banner('Verbinde …');
+  try {
+    const c = demo.client = await joinRoom(code, { name, ...opts });
+    demo.role = 'guest'; myId = c.id; banner('');
+    $('#role').textContent = `· Gast in ${c.code}`; $('#start').hidden = true;
+    state = c.state; render();
+    c.on('state', e => { state = e.state; demo.states++; if (state.phase !== 'question') demo.myAnswer = state.phase === 'reveal' ? demo.myAnswer : null; render(); });
+    c.on('message', ({ msg }) => { demo.msgs.push({ msg }); if (msg.type === 'chat') chatLine(msg.from, msg.text); });
+    c.on('disconnected', () => { log('Verbindung weg – verbinde neu'); banner('Verbindung unterbrochen – verbinde neu …'); });
+    c.on('reconnect', () => { log('wieder verbunden'); banner(''); myId = c.id; });
+    c.on('host-lost', ({ reason }) => { log(`host-lost ${reason}`); banner(reason === 'closed' ? 'Der Gastgeber hat den Raum geschlossen.' : 'Der Gastgeber ist nicht mehr erreichbar.'); });
+    c.on('error', ({ error }) => { demo.errors.push(error.code); log(`error ${error.code}`); });
+    c.on('latency', ({ rtt }) => { demo.rtt = rtt; });
+    log(`beigetreten als ${c.id}`);
+  } catch (e) { banner(e.message); demo.errors.push(e.code); log(`join fehlgeschlagen: ${e.code}`); }
+}
+function answer(i) {
+  if (demo.role === 'host') { answers.host = i; demo.myAnswer = i; demo.room.setState({ answered: { host: true } }, { immediate: true }); return; }
+  demo.myAnswer = i; demo.client.send({ type: 'answer', choice: i }); render();
+}
+function say() {
+  const t = $('#chat').value.trim(); if (!t) return; $('#chat').value = '';
+  if (demo.role === 'host') { chatLine($('#name').value || 'Gastgeber', t); demo.room.broadcast({ type: 'chat', from: $('#name').value || 'Gastgeber', text: t }); }
+  else demo.client?.send({ type: 'chat', text: t });
+}
+$('#say').onclick = say; $('#chat').addEventListener('keydown', e => { if (e.key === 'Enter') say(); });
+$('#host').onclick = host; $('#join').onclick = () => join($('#joincode').value);
+Object.assign(demo, { host, join, ask, reveal, answer, say });
+
+if (params.get('role') === 'host') host();
+else if (params.get('join')) join(params.get('join'));
+</script>
+</body>
+</html>
