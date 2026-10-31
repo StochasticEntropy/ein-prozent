@@ -61,9 +61,13 @@
     if (val == null || val === '') return false;
     if (q.type === 'choice') return val === q.a;
     if (q.type === 'number') return Number(String(val).replace(',', '.')) === q.a;
-    const v = norm(val);
-    if ([q.a, ...(q.accept || [])].map(norm).includes(v)) return true;
-    return (q.contains || []).some(c => v.includes(norm(c)));
+    const ok = v => [q.a, ...(q.accept || [])].map(norm).includes(v) || (q.contains || []).some(c => v.includes(norm(c)));
+    if (ok(norm(val))) return true;
+    // Natürliche Formulierungen gelten auch: „Den Handschuh“, „Nach Osten“, „Ein E“ …
+    const FILL = new Set(['DER', 'DIE', 'DAS', 'DEN', 'DEM', 'DES', 'EIN', 'EINE', 'EINEN', 'EINEM', 'EINER', 'NACH', 'IM', 'AM', 'AUF', 'IN', 'ZUM', 'ZUR', 'ES', 'IST', 'WAR']);
+    const words = String(val).trim().toUpperCase().split(/\s+/);
+    while (words.length > 1 && FILL.has(words[0].replace(/[^A-ZÄÖÜ]/g, ''))) words.shift();
+    return ok(norm(words.join(' ')));
   }
   const solutionText = q => q.type === 'choice' ? q.opts[q.a] : String(q.a);
 

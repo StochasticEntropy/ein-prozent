@@ -495,4 +495,3 @@ body.calm .beam, body.calm .floor { animation: none; }
 .sheet .booth .bubble { font-size: .92rem; }
 
 @media (max-height: 520px) { .stage-intro { align-items: flex-start; overflow-y: auto; } .si-tier span { font-size: 4.2rem; } .si-tier small { font-size: 2rem; } .stage-intro .booth .actor { height: 70px; } .si-go { margin-bottom: 12px; } }
-@media (min-width: 700px) and (min-height: 900px) and (orientation: portrait) { .q-col { justify-content: center; } }

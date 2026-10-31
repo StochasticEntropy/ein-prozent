@@ -1,4 +1,196 @@
 // GENERIERT von tools/build-bank.js – nicht von Hand bearbeiten.
+// ---- alltag.js ----
+(function () {
+  const { seq } = (typeof window !== 'undefined' ? window : globalThis).QSVG;
+  QUIZ_ADD([
+    // ---------- leicht / mittel ----------
+    { id: 'a-zeiteinheiten', fam: 'zeiteinheiten-folge', cat: 'Zeit', type: 'choice',
+      q: 'Was kommt als Nächstes?' + seq(['Sekunde', 'Minute', 'Stunde', 'Tag', '?']),
+      opts: ['Woche', 'Monat', 'Jahr', 'Nacht'], a: 0, r: [1, 0, 0, 0, 0],
+      ex: 'Die Zeiteinheiten werden immer größer: Nach dem Tag kommt die Woche.' },
+    { id: 'a-ampel', fam: 'ampel-phasen', cat: 'Logik', type: 'choice',
+      q: 'Eine normale Verkehrsampel in Deutschland zeigt gerade Grün. Was leuchtet als Nächstes?',
+      opts: ['Gelb', 'Rot', 'Rot und Gelb zusammen', 'Grün und Gelb zusammen'], a: 0, r: [1, 0, 1, 0, 0],
+      ex: 'Die Reihenfolge ist Rot → Rot-Gelb → Grün → Gelb → Rot. Nach Grün kommt Gelb allein.' },
+    { id: 'a-abc-tiere', fam: 'abc-anfangsbuchstaben', cat: 'Logik', type: 'choice',
+      q: 'Welches Tier setzt die Reihe fort?' + seq(['Affe', 'Bär', 'Chamäleon', 'Dachs', '?']),
+      opts: ['Esel', 'Fuchs', 'Zebra', 'Igel'], a: 0, r: [1, 1, 0, 0, 0],
+      ex: 'Die Anfangsbuchstaben laufen durchs Alphabet: A, B, C, D – dann E wie Esel.' },
+    { id: 'a-schulnoten', fam: 'schulnoten-folge', cat: 'Logik', type: 'choice',
+      q: 'Was kommt als Nächstes?' + seq(['sehr gut', 'gut', 'befriedigend', '?']),
+      opts: ['ausreichend', 'mangelhaft', 'ungenügend', 'genügend'], a: 0, r: [1, 0, 1, 0, 1],
+      ex: 'Schulnoten 1 bis 6: sehr gut, gut, befriedigend, ausreichend, mangelhaft, ungenügend.' },
+    { id: 'a-metamorphose', fam: 'entwicklung-schmetterling', cat: 'Logik', type: 'choice',
+      q: 'Was kommt als Nächstes?' + seq(['Ei', 'Raupe', 'Puppe', '?']),
+      opts: ['Schmetterling', 'Kokon', 'Larve', 'Nest'], a: 0, r: [1, 1, 0, 0, 1],
+      ex: 'Aus dem Ei schlüpft die Raupe, sie verpuppt sich, und aus der Puppe schlüpft der Schmetterling.' },
+    { id: 'a-notenwerte', fam: 'notenwerte-halbieren', cat: 'Logik', type: 'text',
+      q: 'Welches Wort kommt als Nächstes?' + seq(['Ganze', 'Halbe', 'Viertel', '?']),
+      a: 'ACHTEL', accept: ['ACHTELNOTE', 'ACHTELNOTEN'], contains: ['ACHTEL'], r: [1, 1, 0, 0, 1],
+      ex: 'Jedes Mal wird halbiert – wie bei den Notenwerten: Ganze, Halbe, Viertel, Achtel.' },
+    { id: 'a-frage-endwort', fam: 'selbstbezug-frage', cat: 'Logik', type: 'text',
+      q: 'Mit welchem Wort endet diese Frage?',
+      a: 'FRAGE', r: [1, 1, 0, 0, 0],
+      ex: 'Einfach hinschauen: Das letzte Wort der Frage ist „Frage“.' },
+    { id: 'a-monate-dreier', fam: 'monate-ueberspringen', cat: 'Zeit', type: 'text',
+      q: 'Welcher Monat kommt als Nächstes?' + seq(['Januar', 'April', 'Juli', '?']),
+      a: 'OKTOBER', r: [1, 1, 0, 1, 0],
+      ex: 'Es geht immer drei Monate weiter – jeweils der erste Monat eines Quartals: Januar, April, Juli, Oktober.' },
+    { id: 'a-tage-jeder-zweite', fam: 'wochentage-ueberspringen', cat: 'Zeit', type: 'text',
+      q: 'Welcher Wochentag kommt als Nächstes?' + seq(['Montag', 'Mittwoch', 'Freitag', 'Sonntag', '?']),
+      a: 'DIENSTAG', r: [1, 1, 1, 0, 0],
+      ex: 'Immer ein Tag wird übersprungen. Nach Sonntag kommt Montag (übersprungen), dann Dienstag.' },
+    { id: 'a-wortkette', fam: 'wortkette-endbuchstabe', cat: 'Logik', type: 'choice',
+      q: 'Welches Wort setzt die Reihe fort?' + seq(['HUND', 'DACH', 'HASE', 'EIMER', '?']),
+      opts: ['RABE', 'APFEL', 'ESEL', 'NASE'], a: 0, r: [1, 2, 0, 0, 0],
+      ex: 'Jedes Wort beginnt mit dem letzten Buchstaben des vorigen: HunD – DacH – HasE – EimeR – Rabe.' },
+    { id: 'a-dritter-j', fam: 'monate-anfangsbuchstabe-j', cat: 'Zeit', type: 'text',
+      q: 'Welcher Monat ist im Jahr der <b>dritte</b>, dessen Name mit J beginnt?',
+      a: 'JULI', r: [1, 1, 1, 0, 0],
+      ex: 'Die J-Monate sind Januar, Juni und Juli – der dritte ist der Juli.' },
+    { id: 'a-handschuh', fam: 'raetsel-schuh', cat: 'Logik', type: 'text',
+      q: 'Welchen Schuh zieht man niemals über einen Fuß?',
+      a: 'HANDSCHUH', accept: ['HANDSCHUHE', 'HEMMSCHUH', 'BREMSSCHUH'], r: [1, 2, 0, 0, 0],
+      ex: 'Den Handschuh – er heißt Schuh, gehört aber an die Hand.' },
+    { id: 'a-lang-klein', fam: 'namen-gegen-eigenschaft', cat: 'Logik', type: 'choice',
+      q: 'Herr Lang ist klein. Herr Klein ist lang. Wer von beiden ist größer?',
+      opts: ['Herr Klein', 'Herr Lang', 'Beide gleich', 'Kann man nicht wissen'], a: 0, r: [1, 1, 1, 0, 0],
+      ex: 'Die Namen sagen nichts: Herr Klein ist lang, also ist er der Größere.' },
+    { id: 'a-datum-nie', fam: 'datum-gibt-es-nicht', cat: 'Zeit', type: 'choice',
+      q: 'Welches Datum gibt es in keinem einzigen Jahr?',
+      opts: ['31. Juni', '29. Februar', '31. Mai', '31. Oktober'], a: 0, r: [1, 1, 1, 0, 1],
+      ex: 'Der Juni hat nur 30 Tage. Den 29. Februar gibt es immerhin in jedem Schaltjahr.' },
+    { id: 'a-gleich-lang', fam: 'monatslaenge-ausreisser', cat: 'Zeit', type: 'choice',
+      q: 'Drei dieser Monate sind gleich lang. Welcher nicht?',
+      opts: ['Oktober', 'April', 'Juni', 'September'], a: 0, r: [1, 1, 1, 0, 1],
+      ex: 'April, Juni und September haben je 30 Tage, der Oktober hat 31.' },
+
+    // ---------- schwer ----------
+    { id: 'a-richtung', fam: 'himmelsrichtung-abbiegen', cat: 'Logik', type: 'text',
+      q: 'Du gehst nach Norden. Dann biegst du zweimal rechts ab und danach einmal links ab. In welche Himmelsrichtung gehst du jetzt?',
+      a: 'OSTEN', accept: ['OST'], r: [2, 1, 0, 1, 0],
+      ex: 'Norden → rechts → Osten → rechts → Süden → links → Osten.' },
+    { id: 'a-nicht-kino', fam: 'doppelte-verneinung', cat: 'Logik', type: 'choice',
+      q: 'Ole sagt die Wahrheit: „Es stimmt nicht, dass ich gestern nicht im Kino war.“ War Ole gestern im Kino?',
+      opts: ['Ja', 'Nein', 'Kann man nicht wissen'], a: 0, noShuffle: true, r: [1, 2, 1, 0, 0],
+      ex: 'Ole sagt: Die Behauptung „ich war nicht im Kino“ stimmt nicht. Also war er im Kino – zwei Verneinungen heben sich auf.' },
+    { id: 'a-b-vokale', fam: 'vokal-reihenfolge', cat: 'Logik', type: 'choice',
+      q: 'Welches Wort setzt die Reihe fort?' + seq(['BAD', 'BETT', 'BILD', 'BOOT', '?']),
+      opts: ['BUCH', 'BAUM', 'BERG', 'BROT'], a: 0, r: [1, 2, 1, 0, 0],
+      ex: 'Nach dem B kommen die Vokale der Reihe nach: A, E, I, O – dann U wie BUCH.' },
+    { id: 'a-name', fam: 'raetsel-besitz', cat: 'Logik', type: 'text',
+      q: 'Es gehört dir ganz allein – trotzdem benutzen es andere viel öfter als du selbst. Was ist es?',
+      a: 'NAME', accept: ['NAMEN', 'VORNAME', 'VORNAMEN', 'DEINNAME'], contains: ['NAME'], r: [1, 2, 1, 0, 0],
+      ex: 'Dein Name: Er gehört dir, aber vor allem andere sprechen dich damit an.' },
+    { id: 'a-gegenueber', fam: 'perspektive-links-rechts', cat: 'Logik', type: 'choice',
+      q: 'Anna und Ben stehen sich gegenüber und schauen sich an. Anna streckt ihren <b>linken</b> Arm zur Seite. Auf welcher Seite ist dieser Arm – von Ben aus gesehen?',
+      opts: ['Rechts', 'Links', 'Kommt darauf an'], a: 0, noShuffle: true, r: [1, 2, 2, 0, 0],
+      ex: 'Wer sich gegenübersteht, hat links und rechts vertauscht: Annas links ist Bens rechts.' },
+    { id: 'a-flunkern-schach', fam: 'wer-flunkert', cat: 'Logik', type: 'choice',
+      q: 'Drei Kinder erzählen vom Wochenende. Mia: „Beim Fußball habe ich ein Kopfballtor geschossen.“ Lars: „Beim Schach hatte ich Schwarz und durfte anfangen.“ Ida: „Beim Tennis habe ich einen Satz 6:4 gewonnen.“ Wer flunkert?',
+      opts: ['Lars', 'Mia', 'Ida'], a: 0, r: [2, 2, 1, 0, 1],
+      ex: 'Beim Schach macht immer Weiß den ersten Zug. Wer Schwarz hat, darf nicht anfangen.' },
+    { id: 'a-februar-gleich', fam: 'monat-gleicher-wochentag', cat: 'Zeit', type: 'choice',
+      q: 'Welcher Monat kann am selben Wochentag beginnen und enden?',
+      opts: ['Februar', 'Januar', 'April', 'Keiner'], a: 0, r: [2, 2, 2, 1, 0],
+      ex: 'Erster und letzter Tag fallen nur dann auf denselben Wochentag, wenn der Monat 29 Tage hat (vom 1. bis zum 29. sind es genau 28 Tage = 4 Wochen) – das ist der Februar im Schaltjahr.' },
+    { id: 'a-buchseiten', fam: 'wer-flunkert', cat: 'Logik', type: 'choice',
+      q: 'In einem normalen Buch ist Seite 1 eine rechte Seite. Drei Kinder haben je einen Geldschein darin versteckt. Ali: „Zwischen Seite 20 und 21.“ Bea: „Zwischen Seite 35 und 36.“ Cem: „Zwischen Seite 50 und 51.“ Wer flunkert?',
+      opts: ['Bea', 'Ali', 'Cem'], a: 0, r: [2, 3, 2, 0, 0],
+      ex: 'Ist Seite 1 rechts, stehen ungerade Seiten immer vorn auf einem Blatt und die nächste gerade Seite auf dessen Rückseite. 35 und 36 sind also dasselbe Blatt – dazwischen passt nichts. 20|21 und 50|51 liegen sich im aufgeschlagenen Buch gegenüber.' },
+    { id: 'a-hahn-ei', fam: 'falsche-voraussetzung', cat: 'Logik', type: 'choice',
+      q: 'Ein Hahn sitzt genau auf dem Dachfirst einer Scheune und legt ein Ei. Auf welche Seite rollt es?',
+      opts: ['Auf keine – Hähne legen keine Eier', 'Nach links', 'Nach rechts', 'Es bleibt oben liegen'], a: 0, r: [1, 1, 2, 0, 0],
+      ex: 'Eier legen nur Hennen. Der Hahn legt gar keins.' },
+    { id: 'a-dreisilbig', fam: 'autologisch', cat: 'Logik', type: 'choice',
+      q: 'Welches dieser Wörter beschreibt sich selbst richtig?',
+      opts: ['dreisilbig', 'einsilbig', 'zweisilbig', 'viersilbig'], a: 0, r: [2, 3, 1, 1, 0],
+      ex: 'Alle vier Wörter haben drei Silben (drei-sil-big, ein-sil-big …). Nur „dreisilbig“ stimmt also für sich selbst.' },
+    { id: 'a-beine', fam: 'tiere-nach-beinen', cat: 'Logik', type: 'choice',
+      q: 'Welches Tier setzt die Reihe fort?' + seq(['Wurm', 'Huhn', 'Pferd', 'Käfer', '?']),
+      opts: ['Spinne', 'Fisch', 'Vogel', 'Hund'], a: 0, r: [2, 3, 1, 1, 1],
+      ex: 'Die Zahl der Beine steigt um zwei: Wurm 0, Huhn 2, Pferd 4, Käfer 6 – die Spinne hat 8.' },
+    { id: 'a-witwe', fam: 'falsche-voraussetzung', cat: 'Logik', type: 'choice',
+      q: 'Darf ein Mann in Deutschland die Schwester seiner Witwe heiraten?',
+      opts: ['Ja, das ist erlaubt', 'Nein, das ist verboten', 'Nur mit Sondergenehmigung', 'Das geht nicht – er ist tot'], a: 3, r: [1, 3, 2, 0, 0],
+      ex: 'Wer eine Witwe hinterlässt, ist gestorben. Ein Toter kann niemanden mehr heiraten.' },
+    { id: 'a-eigelb', fam: 'grammatik-falle-inhalt', cat: 'Logik', type: 'choice',
+      q: 'Welcher Satz ist richtig?',
+      opts: ['„Das Eigelb ist weiß.“', '„Das Eigelb sind weiß.“', 'Beide', 'Keiner von beiden'], a: 3, noShuffle: true, r: [1, 2, 3, 0, 0],
+      ex: 'Grammatisch passt „ist“ – aber Eigelb ist gelb, nicht weiß. Beide Sätze sind falsch.' },
+    { id: 'a-doppelwort', fam: 'doppeltes-wort-uebersehen', cat: 'Logik', type: 'text',
+      q: 'In diesem Satz ist genau ein Wort zu viel. Welches?<br><b>„Am Wochenende fahren wir mit dem dem Zug an die See.“</b>',
+      a: 'DEM', r: [1, 2, 1, 0, 0],
+      ex: '„dem“ steht zweimal hintereinander – das Auge überliest die Wiederholung leicht.' },
+    { id: 'a-alphabet-rueck', fam: 'antwort-in-frage', cat: 'Logik', type: 'text',
+      q: 'Du sagst das Alphabet rückwärts auf: Z, Y, X … Welcher Buchstabe kommt dabei direkt nach dem Buchstaben, den du direkt vor dem M sagst?',
+      a: 'M', letters: true, r: [2, 2, 2, 0, 0],
+      ex: 'Rückwärts sagst du … N, M, L … Direkt vor M sagst du N, und direkt nach N kommt wieder M.' },
+    { id: 'a-satz-kette', fam: 'antwort-in-frage', cat: 'Logik', type: 'text',
+      q: 'Welches Wort steht in diesem Satz direkt vor dem Wort, das direkt nach „Satz“ steht?',
+      a: 'SATZ', r: [2, 2, 1, 0, 0],
+      ex: 'Nach „Satz“ kommt „direkt“ – und direkt davor steht natürlich wieder „Satz“.' },
+    { id: 'a-kompass', fam: 'initialen-kreislauf', cat: 'Logik', type: 'text',
+      q: 'Welcher Buchstabe kommt als Nächstes?' + seq(['N', 'O', 'S', 'W', '?']),
+      a: 'N', accept: ['NORDEN', 'NORD'], letters: true, r: [1, 3, 1, 0, 0],
+      ex: 'Die Himmelsrichtungen im Uhrzeigersinn: Norden, Osten, Süden, Westen – und wieder Norden.' },
+    { id: 'a-jahreszeiten-initialen', fam: 'initialen-kreislauf', cat: 'Zeit', type: 'text',
+      q: 'Welcher Buchstabe kommt als Nächstes?' + seq(['F', 'S', 'H', '?']),
+      a: 'W', accept: ['WINTER'], letters: true, r: [1, 2, 1, 0, 0],
+      ex: 'Die Jahreszeiten: Frühling, Sommer, Herbst – dann Winter.' },
+    { id: 'a-himmel-erde', fam: 'woertlich-nehmen', cat: 'Logik', type: 'text',
+      q: 'Welches Wort mit drei Buchstaben steht zwischen Himmel und Erde?',
+      a: 'UND', r: [1, 3, 1, 0, 0],
+      ex: 'Wörtlich gelesen: In „Himmel und Erde“ steht zwischen den beiden Wörtern das Wort „und“.' },
+    { id: 'a-tag-autofahrer', fam: 'raetsel-sicht-ohne-licht', cat: 'Logik', type: 'text',
+      q: 'Ein Auto fährt ohne Licht auf einer Landstraße ohne Laternen, der Mond scheint nicht. Ein ganz in Schwarz gekleideter Mann überquert die Straße – der Fahrer sieht ihn und bremst rechtzeitig. Wie ist das möglich? (Ein Wort)',
+      a: 'TAG', accept: ['TAGSÜBER', 'HELL', 'MITTAG', 'TAGESLICHT', 'HELLERTAG', 'HELLLICHTERTAG', 'SONNENSCHEIN', 'TAGHELL'], r: [1, 3, 1, 0, 0],
+      ex: 'Es war heller Tag (die Sonne schien) – dann braucht man weder Scheinwerfer noch Mond.' },
+
+    // ---------- sehr schwer ----------
+    { id: 'a-kiwi', fam: 'anweisung-woertlich', cat: 'Logik', type: 'text',
+      q: 'Streiche SECHS BUCHSTABEN – dann bleibt ein Obst übrig. Welches?<br><b>S K E C H S I B U C H W S T A B E I N</b>',
+      a: 'KIWI', accept: ['KIWIS'], r: [2, 4, 2, 1, 0],
+      ex: 'Nicht sechs Buchstaben streichen, sondern die Buchstaben von S-E-C-H-S B-U-C-H-S-T-A-B-E-N. Übrig bleiben K, I, W, I.' },
+    { id: 'a-lese-esel', fam: 'rueckwaerts-tier-in-frage', cat: 'Logik', type: 'text',
+      q: 'Ich lese dir jetzt eine Frage vor: Welches Wort hier ergibt rückwärts gelesen ein Tier?',
+      a: 'LESE', r: [2, 3, 1, 2, 0],
+      ex: '„lese“ rückwärts ist ESEL. Kein anderes Wort im Text wird rückwärts zu einem Tier.' },
+    { id: 'a-fotografin', fam: 'raetsel-beruf-doppelsinn', cat: 'Logik', type: 'text',
+      q: 'Eine Frau schießt ihren Mann, hält ihn eine Weile unter Wasser und hängt ihn danach zum Trocknen auf. Abends gehen beide fröhlich essen. Welchen Beruf hat die Frau?',
+      a: 'FOTOGRAFIN', accept: ['FOTOGRAF', 'PHOTOGRAPHIN', 'FOTOGRAPHIN'], contains: ['FOTOGRAF', 'PHOTOGRAPH', 'FOTOGRAPH'], r: [2, 3, 1, 0, 1],
+      ex: 'Sie schießt ein Foto von ihm, entwickelt es im Wasserbad und hängt den Abzug zum Trocknen auf.' },
+    { id: 'a-mitte-i', fam: 'mitte-des-wortes', cat: 'Logik', type: 'text',
+      q: 'Was steckt genau in der Mitte von Mainz, genau in der Mitte von Trier und genau in der Mitte vom Nil?',
+      a: 'I', accept: ['DASI', 'BUCHSTABEI', 'DERBUCHSTABEI'], letters: true, r: [1, 3, 2, 0, 0],
+      ex: 'Gemeint sind die Wörter: MA-I-NZ, TR-I-ER, N-I-L – in der Mitte steht jedes Mal ein I.' },
+    { id: 'a-juni-kette', fam: 'kalender-alphabetisch', cat: 'Zeit', type: 'text',
+      q: 'Ordne die zwölf Monatsnamen alphabetisch. Welcher steht dann direkt hinter dem Monat, der im Kalender auf den Juni folgt?',
+      a: 'JUNI', r: [3, 2, 2, 1, 0],
+      ex: 'Auf den Juni folgt der Juli. Alphabetisch: Januar, Juli, Juni – direkt hinter dem Juli steht also der Juni.' },
+    { id: 'a-august', fam: 'monatslaenge-nachbar', cat: 'Zeit', type: 'text',
+      q: 'Welcher Monat hat genau so viele Tage wie der Monat direkt vor ihm im selben Jahr?',
+      a: 'AUGUST', r: [2, 2, 1, 1, 1],
+      ex: 'Juli und August haben beide 31 Tage. Bei allen anderen Nachbarn im selben Jahr wechselt die Länge.' },
+    { id: 'a-buchstabe-e', fam: 'raetsel-buchstabe', cat: 'Zeit', type: 'text',
+      q: 'Ich stehe am Anfang jedes Endes, am Schluss jeder Woche und zweimal in jeder Sekunde – aber nie in einem Monat. Was bin ich?',
+      a: 'E', accept: ['DASE', 'BUCHSTABEE', 'DERBUCHSTABEE'], letters: true, r: [2, 3, 1, 0, 0],
+      ex: 'Der Buchstabe E: ENDE beginnt mit E, WOCHE endet mit E, SEKUNDE hat zwei E, MONAT hat keins.' },
+    { id: 'a-vokal-fehlt', fam: 'selbstbezug-frage', cat: 'Logik', type: 'text',
+      q: 'Welcher Vokal kommt in dieser Frage nicht vor?',
+      a: 'U', accept: ['Ä', 'Ö', 'Ü', 'Y'], letters: true, r: [1, 3, 1, 1, 0],
+      ex: 'In „Welcher Vokal kommt in dieser Frage nicht vor?“ stecken A, E, I und O – aber kein U.' },
+    { id: 'a-falsch', fam: 'wort-meint-sich-selbst', cat: 'Logik', type: 'text',
+      q: 'Welches Wort schreibt jeder Mensch falsch – sogar jemand, der nie einen Rechtschreibfehler macht?',
+      a: 'FALSCH', r: [1, 3, 2, 0, 0],
+      ex: 'Das Wort „falsch“: Richtig geschrieben wird es immer f-a-l-s-c-h – also „falsch“.' },
+    { id: 'a-jedes-tier', fam: 'woertlich-nehmen', cat: 'Logik', type: 'choice',
+      q: 'Welche Tiere können höher springen als ein Haus?',
+      opts: ['Alle, die überhaupt springen können', 'Nur Flöhe', 'Nur Kängurus', 'Keine'], a: 0, r: [1, 3, 2, 0, 0],
+      ex: 'Ein Haus kann gar nicht springen. Jedes Tier, das springen kann, springt also höher als ein Haus.' },
+  ]);
+})();
+
 // ---- bilder.js ----
 // Bilderrätsel (Kategorie „Bilder“) – alle Grafiken werden hier als SVG erzeugt.
 (function () {
@@ -979,6 +1171,839 @@
   ]);
 })();
 
+// ---- bildlogik.js ----
+// Bildlogik (Kategorie „Bilder“, Präfix p-) – Antworten sind Buchstaben/Optionen oder Wörter, keine Zahlen.
+(function () {
+  const { svg, gearPath } = (typeof window !== 'undefined' ? window : globalThis).QSVG;
+
+  // ---------- Bausteine ----------
+  const PINK = '#ff7ab6', CYAN = '#22d3ee', GOLD = '#ffc940', WHITE = '#f3f4ff', VIOLET = '#a78bfa', DARK = '#1a1240',
+    GREEN = '#34d399', BROWN = '#c08457', RED = '#ff4d6d', SOFT = '#b9bde8';
+  const f1 = (v) => Math.round(v * 10) / 10;
+  const pts = (arr) => arr.map(([x, y]) => `${f1(x)},${f1(y)}`).join(' ');
+  const ln = (x1, y1, x2, y2, extra = '') => `<line class="ln" x1="${f1(x1)}" y1="${f1(y1)}" x2="${f1(x2)}" y2="${f1(y2)}"${extra ? ' ' + extra : ''}/>`;
+  const tx = (x, y, t, size = 16, extra = '') => `<text class="tx" x="${f1(x)}" y="${f1(y)}"${extra.includes('text-anchor') ? '' : ' text-anchor="middle"'} font-size="${size}" font-weight="700"${extra ? ' ' + extra : ''}>${t}</text>`;
+  const poly = (arr, extra) => `<polygon points="${pts(arr)}" ${extra}/>`;
+  const path = (d, extra) => `<path d="${d}" ${extra}/>`;
+  const ngon = (cx, cy, r, n, rot = -90) => Array.from({ length: n }, (_, i) => {
+    const a = (rot + i * 360 / n) * Math.PI / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+  const box = (x, y, w, h) => `<rect x="${f1(x)}" y="${f1(y)}" width="${f1(w)}" height="${f1(h)}" rx="8" fill="rgba(255,255,255,.05)" stroke="${VIOLET}" stroke-width="2"/>`;
+  const L = 'ABCDEFGH';
+
+  // ---------- Piktogramme ----------
+  function iconTree(cx, cy, s = 1) {
+    return `<rect x="${f1(cx - 7 * s)}" y="${f1(cy + 4 * s)}" width="${f1(14 * s)}" height="${f1(34 * s)}" fill="${BROWN}"/>` +
+      `<circle cx="${f1(cx)}" cy="${f1(cy - 18 * s)}" r="${f1(24 * s)}" fill="${GREEN}"/>` +
+      `<circle cx="${f1(cx - 20 * s)}" cy="${f1(cy)}" r="${f1(16 * s)}" fill="${GREEN}"/>` +
+      `<circle cx="${f1(cx + 20 * s)}" cy="${f1(cy)}" r="${f1(16 * s)}" fill="${GREEN}"/>`;
+  }
+  function iconHouse(cx, cy, s = 1) {
+    return `<rect x="${f1(cx - 26 * s)}" y="${f1(cy - 6 * s)}" width="${f1(52 * s)}" height="${f1(44 * s)}" fill="${CYAN}"/>` +
+      poly([[cx - 34 * s, cy - 4 * s], [cx, cy - 36 * s], [cx + 34 * s, cy - 4 * s]], `fill="${PINK}"`) +
+      `<rect x="${f1(cx - 7 * s)}" y="${f1(cy + 14 * s)}" width="${f1(14 * s)}" height="${f1(24 * s)}" fill="${DARK}"/>` +
+      `<rect x="${f1(cx + 10 * s)}" y="${f1(cy + 2 * s)}" width="${f1(10 * s)}" height="${f1(10 * s)}" fill="${DARK}"/>`;
+  }
+  function iconFish(cx, cy, s = 1) {
+    return poly([[cx + 20 * s, cy], [cx + 42 * s, cy - 16 * s], [cx + 42 * s, cy + 16 * s]], `fill="${GOLD}"`) +
+      `<ellipse cx="${f1(cx - 4 * s)}" cy="${f1(cy)}" rx="${f1(30 * s)}" ry="${f1(17 * s)}" fill="${GOLD}"/>` +
+      `<circle cx="${f1(cx - 20 * s)}" cy="${f1(cy - 4 * s)}" r="${f1(3.5 * s)}" fill="${DARK}"/>` +
+      path(`M ${f1(cx - 2 * s)} ${f1(cy - 12 * s)} Q ${f1(cx + 6 * s)} ${f1(cy)} ${f1(cx - 2 * s)} ${f1(cy + 12 * s)}`, `fill="none" stroke="${DARK}" stroke-width="2"`);
+  }
+  function iconClock(cx, cy, r = 30) {
+    let s = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${WHITE}" stroke="${VIOLET}" stroke-width="4"/>`;
+    for (let i = 0; i < 12; i += 3) {
+      const a = i * Math.PI / 6;
+      s += `<line x1="${f1(cx + r * 0.72 * Math.sin(a))}" y1="${f1(cy - r * 0.72 * Math.cos(a))}" x2="${f1(cx + r * 0.88 * Math.sin(a))}" y2="${f1(cy - r * 0.88 * Math.cos(a))}" stroke="${DARK}" stroke-width="3" stroke-linecap="round"/>`;
+    }
+    s += `<line x1="${cx}" y1="${cy}" x2="${cx}" y2="${f1(cy - r * 0.62)}" stroke="${DARK}" stroke-width="3.5" stroke-linecap="round"/>`;
+    s += `<line x1="${cx}" y1="${cy}" x2="${f1(cx + r * 0.42)}" y2="${f1(cy + r * 0.1)}" stroke="${DARK}" stroke-width="4.5" stroke-linecap="round"/>`;
+    return s + `<circle cx="${cx}" cy="${cy}" r="3" fill="${PINK}"/>`;
+  }
+  function iconHand(cx, cy, s = 1) {
+    const sk = `fill="#f5c9a0" stroke="${BROWN}" stroke-width="1.5"`;
+    let o = `<rect x="${f1(cx - 18 * s)}" y="${f1(cy - 6 * s)}" width="${f1(36 * s)}" height="${f1(34 * s)}" rx="${f1(9 * s)}" ${sk}/>`;
+    [[-15, 30], [-5, 36], [5, 38], [15, 32]].forEach(([dx, h]) => {
+      o += `<rect x="${f1(cx + (dx - 4.5) * s)}" y="${f1(cy - (h - 4) * s)}" width="${f1(9 * s)}" height="${f1(h * s)}" rx="${f1(4.5 * s)}" ${sk}/>`;
+    });
+    o += `<rect x="${f1(cx - 24 * s)}" y="${f1(cy - 2 * s)}" width="${f1(10 * s)}" height="${f1(26 * s)}" rx="${f1(5 * s)}" transform="rotate(-32 ${f1(cx - 18 * s)} ${f1(cy + 22 * s)})" ${sk}/>`;
+    o += `<rect x="${f1(cx - 17 * s)}" y="${f1(cy - 2 * s)}" width="${f1(34 * s)}" height="${f1(28 * s)}" rx="${f1(8 * s)}" fill="#f5c9a0"/>`;
+    return o;
+  }
+  function iconEgg(cx, cy, s = 1) {
+    return path(`M ${f1(cx)} ${f1(cy - 30 * s)} C ${f1(cx + 22 * s)} ${f1(cy - 30 * s)} ${f1(cx + 26 * s)} ${f1(cy + 26 * s)} ${f1(cx)} ${f1(cy + 26 * s)} C ${f1(cx - 26 * s)} ${f1(cy + 26 * s)} ${f1(cx - 22 * s)} ${f1(cy - 30 * s)} ${f1(cx)} ${f1(cy - 30 * s)} Z`, `fill="#fff4dc" stroke="${BROWN}" stroke-width="2"`);
+  }
+  function iconRing(cx, cy, s = 1) {
+    return `<circle cx="${cx}" cy="${f1(cy + 8 * s)}" r="${f1(20 * s)}" fill="none" stroke="${GOLD}" stroke-width="${f1(6 * s)}"/>` +
+      poly([[cx, cy - 26 * s], [cx + 11 * s, cy - 16 * s], [cx, cy - 6 * s], [cx - 11 * s, cy - 16 * s]], `fill="${CYAN}" stroke="${WHITE}" stroke-width="1.5"`);
+  }
+
+  // ---------- Grafiken: leicht/mittel ----------
+
+  // Baum + Haus
+  function svgBaumHaus() {
+    return svg('0 0 280 120', iconTree(70, 54, 1.05) + tx(140, 72, '+', 40) + iconHouse(210, 62, 1.15));
+  }
+
+  // Schattenlängen: alle Schatten so lang wie der Pfahl hoch ist – außer einem
+  function svgSchatten() {
+    const g = 150;
+    const sy = 30; // Sonne hoch links: Schatten ≈ 0,6 × Pfahlhöhe entspricht etwa 60° Sonnenhöhe
+    let s = `<rect x="8" y="${g}" width="284" height="10" fill="rgba(255,255,255,.06)"/><circle cx="30" cy="${sy}" r="14" fill="${GOLD}"/>`;
+    for (let i = 0; i < 8; i++) {
+      const a = i * Math.PI / 4;
+      s += `<line x1="${f1(30 + 18 * Math.cos(a))}" y1="${f1(sy + 18 * Math.sin(a))}" x2="${f1(30 + 25 * Math.cos(a))}" y2="${f1(sy + 25 * Math.sin(a))}" stroke="${GOLD}" stroke-width="3" stroke-linecap="round"/>`;
+    }
+    const posts = [[60, 50, 30], [126, 90, 20], [192, 70, 42], [250, 34, 20]]; // Schatten = 0,6 × Höhe, nur B zu kurz
+    posts.forEach(([x, h, sl], i) => {
+      s += poly([[x + 6, g], [x + 6 + sl, g], [x + 6 + sl, g + 7], [x + 6, g + 7]], `fill="#5a5296"`);
+      s += `<rect x="${x - 6}" y="${g - h}" width="12" height="${h}" fill="${CYAN}"/>`;
+      s += tx(x, g + 30, L[i]);
+    });
+    s += ln(8, g, 292, g, 'stroke-width="2"');
+    return svg('0 0 300 186', s);
+  }
+
+  // Roboter und Schattenrisse
+  function robot(cx, cy, { antL = true, armRUp = true, armLUp = false, fill = null } = {}) {
+    const c = (k) => fill || k;
+    let s = '';
+    const ax = antL ? cx - 11 : cx + 11;
+    s += `<line x1="${ax}" y1="${cy - 34}" x2="${ax}" y2="${cy - 46}" stroke="${c(SOFT)}" stroke-width="3"/><circle cx="${ax}" cy="${cy - 48}" r="4.5" fill="${c(PINK)}"/>`;
+    s += `<rect x="${cx - 16}" y="${cy - 36}" width="32" height="24" rx="4" fill="${c(CYAN)}"/>`;
+    if (!fill) s += `<circle cx="${cx - 7}" cy="${cy - 25}" r="3.5" fill="${DARK}"/><circle cx="${cx + 7}" cy="${cy - 25}" r="3.5" fill="${DARK}"/>`;
+    s += `<rect x="${cx - 20}" y="${cy - 10}" width="40" height="34" rx="4" fill="${c(VIOLET)}"/>`;
+    const arm = (side, up) => up
+      ? `<rect x="${side < 0 ? cx - 29 : cx + 21}" y="${cy - 52}" width="8" height="46" rx="4" fill="${c(GOLD)}"/>`
+      : `<rect x="${side < 0 ? cx - 29 : cx + 21}" y="${cy - 8}" width="8" height="30" rx="4" fill="${c(GOLD)}"/>`;
+    s += arm(-1, armLUp) + arm(1, armRUp);
+    s += `<rect x="${cx - 15}" y="${cy + 24}" width="9" height="18" fill="${c(SOFT)}"/><rect x="${cx + 6}" y="${cy + 24}" width="9" height="18" fill="${c(SOFT)}"/>`;
+    return s;
+  }
+  function svgSilhouette() {
+    let s = robot(150, 62);
+    const opts = [
+      { antL: false, armRUp: false, armLUp: true },  // gespiegelt
+      { antL: true, armRUp: true, armLUp: false },   // richtig
+      { antL: true, armRUp: false, armLUp: true },   // falscher Arm
+      { antL: false, armRUp: true, armLUp: false },  // Antenne falsch
+    ];
+    opts.forEach((o, i) => {
+      const cx = 40 + i * 73;
+      s += robot(cx, 176, { ...o, fill: '#6d63c9' }) + tx(cx, 244, L[i]);
+    });
+    return svg('0 0 300 254', s);
+  }
+
+  // Ecken werden der Reihe nach abgeschnitten
+  function cutSquare(cx, cy, k, col, sz = 46) {
+    const h = sz / 2, c = 14;
+    const corners = [[cx - h, cy - h], [cx + h, cy - h], [cx + h, cy + h], [cx - h, cy + h]];
+    const p = [];
+    corners.forEach(([x, y], i) => {
+      if (!k.includes(i)) { p.push([x, y]); return; }
+      const prev = corners[(i + 3) % 4], next = corners[(i + 1) % 4];
+      const toward = (a, b) => [a[0] + Math.sign(b[0] - a[0]) * c, a[1] + Math.sign(b[1] - a[1]) * c];
+      p.push(toward([x, y], prev), toward([x, y], next));
+    });
+    return poly(p, `fill="${col}"`);
+  }
+  function svgEckenFolge() {
+    let s = '';
+    const seq = [[[], PINK], [[0], CYAN], [[0, 1], PINK], [[0, 1, 2], CYAN]];
+    seq.forEach(([k, col], i) => { s += cutSquare(34 + i * 58, 36, k, col); });
+    s += tx(34 + 4 * 58, 48, '?', 34);
+    const opts = [[[0, 1, 2, 3], CYAN], [[0, 1, 3], PINK], [[0, 1, 2, 3], PINK], [[], PINK]];
+    opts.forEach(([k, col], i) => {
+      const cx = 40 + i * 73;
+      s += box(cx - 32, 84, 64, 64) + cutSquare(cx, 116, k, col) + tx(cx, 172, L[i]);
+    });
+    return svg('0 0 300 182', s);
+  }
+
+  // Würfelnetze
+  const NETS_KEIN = [
+    [[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [3, 2]],
+    [[0, 0], [1, 0], [2, 0], [2, 1], [3, 1], [4, 1]],
+    [[0, 0], [2, 0], [0, 1], [1, 1], [2, 1], [3, 1]], // kein Würfel: beide Klappen landen oben
+    [[1, 0], [0, 1], [1, 1], [2, 1], [3, 1], [3, 2]],
+  ];
+  function svgNetze() {
+    let s = '';
+    const c = 22;
+    NETS_KEIN.forEach((net, i) => {
+      const bx = (i % 2) * 150, by = Math.floor(i / 2) * 104;
+      const w = (Math.max(...net.map(p => p[0])) + 1) * c, h = (Math.max(...net.map(p => p[1])) + 1) * c;
+      const ox = bx + 22 + (108 - w) / 2, oy = by + 8 + (70 - h) / 2;
+      net.forEach(([x, y]) => { s += `<rect class="cell" x="${ox + x * c}" y="${oy + y * c}" width="${c}" height="${c}"/>`; });
+      s += tx(bx + 4, by + 30, L[i], 18, 'text-anchor="start"');
+    });
+    return svg('0 0 300 200', s);
+  }
+
+  // Zahnräder unterschiedlicher Größe
+  function svgZahnradSchnell() {
+    const G = [[60, 92, 38, 16], [120, 72, 16, 7], [169, 98, 28, 12], [218, 64, 20, 8]];
+    let s = '';
+    G.forEach(([x, y, r, t], i) => { s += gearPath(x, y, r, t, i * 0.2); });
+    const lab = [[60, 152], [120, 40], [169, 150], [252, 40]];
+    lab.forEach(([x, y], i) => { s += tx(x, y, L[i], 18); });
+    return svg('0 0 280 166', s);
+  }
+
+  // 3×3: Viertelkreis wandert im Uhrzeigersinn
+  function quarter(x, y, w, corner, col) {
+    const C = [[x, y], [x + w, y], [x + w, y + w], [x, y + w]][corner];
+    const r = w * 0.55;
+    const dx = corner === 0 || corner === 3 ? 1 : -1, dy = corner < 2 ? 1 : -1;
+    const sweep = (dx * dy > 0) ? 1 : 0;
+    return path(`M ${C[0]} ${C[1]} L ${C[0] + dx * r} ${C[1]} A ${r} ${r} 0 0 ${sweep} ${C[0]} ${C[1] + dy * r} Z`, `fill="${col}"`);
+  }
+  function svgMatrixDrehen() {
+    const w = 60, x0 = 60, y0 = 6, cols = [PINK, CYAN, GOLD];
+    const start = [0, 1, 2];
+    let s = '';
+    for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+      const x = x0 + c * w, y = y0 + r * w;
+      s += `<rect class="cell" x="${x}" y="${y}" width="${w}" height="${w}"/>`;
+      if (r === 2 && c === 2) s += tx(x + w / 2, y + w / 2 + 11, '?', 30);
+      else s += quarter(x + 6, y + 6, w - 12, (start[r] + c) % 4, cols[r]);
+    }
+    const opts = [[1, GOLD], [3, GOLD], [0, CYAN], [0, GOLD]];
+    opts.forEach(([k, col], i) => {
+      const x = 12 + i * 72, y = 198;
+      s += box(x, y, w, w) + quarter(x + 6, y + 6, w - 12, k, col) + tx(x + w / 2, y + w + 20, L[i]);
+    });
+    return svg('0 0 300 284', s);
+  }
+
+  // Schilder am See (ohne Spiegelbild)
+  function svgSeeWoerter() {
+    const W = ['ECHO', 'KINO', 'HOSE', 'CHOR'];
+    let s = `<rect x="0" y="92" width="300" height="58" fill="rgba(34,211,238,.18)"/>`;
+    for (let i = 0; i < 6; i++) s += path(`M ${20 + i * 46} ${112 + (i % 2) * 18} q 8 -5 16 0 t 16 0`, `fill="none" stroke="${CYAN}" stroke-width="2" opacity=".6"`);
+    W.forEach((w, i) => {
+      const cx = 40 + i * 73;
+      s += `<rect x="${cx - 3}" y="56" width="6" height="36" fill="${BROWN}"/>`;
+      s += `<rect x="${cx - 33}" y="22" width="66" height="34" rx="5" fill="${WHITE}"/>`;
+      s += `<text x="${cx}" y="47" text-anchor="middle" font-size="20" font-weight="800" fill="${DARK}" font-family="sans-serif">${w}</text>`;
+    });
+    return svg('0 0 300 150', s);
+  }
+
+  // Fisch, F = T
+  function svgFischTisch() {
+    return svg('0 0 240 120', iconFish(96, 46, 1.2) + tx(110, 108, 'F = T', 26));
+  }
+
+  // Welche Figur sieht auf dem Kopf genauso aus?
+  function svgKopfstand() {
+    let s = '';
+    const cx = [40, 113, 186, 259], cy = 52;
+    s += path(`M ${cx[0]} ${cy + 26} L ${cx[0] - 26} ${cy - 2} A 13 13 0 0 1 ${cx[0]} ${cy - 18} A 13 13 0 0 1 ${cx[0] + 26} ${cy - 2} Z`, `fill="${PINK}"`);
+    s += path(`M ${cx[1] + 15.3} ${cy - 25.8} A 30 30 0 1 0 ${cx[1] + 15.3} ${cy + 25.8} A 26 26 0 1 1 ${cx[1] + 15.3} ${cy - 25.8} Z`, `fill="${GOLD}"`);
+    s += poly([[cx[2] - 27, cy - 18], [cx[2] + 9, cy - 18], [cx[2] + 9, cy], [cx[2] + 27, cy], [cx[2] + 27, cy + 18], [cx[2] - 9, cy + 18], [cx[2] - 9, cy], [cx[2] - 27, cy]], `fill="${CYAN}"`);
+    s += poly([[cx[3], cy - 30], [cx[3] + 24, cy - 4], [cx[3] + 9, cy - 4], [cx[3] + 9, cy + 28], [cx[3] - 9, cy + 28], [cx[3] - 9, cy - 4], [cx[3] - 24, cy - 4]], `fill="${GREEN}"`);
+    cx.forEach((x, i) => { s += tx(x, 112, L[i]); });
+    return svg('0 0 300 122', s);
+  }
+
+  // ---------- Grafiken: schwer ----------
+
+  // Isometrische Würfel (Betrachter von +x,+y,+z; rechte Seite = +x, linke Seite = +y)
+  function isoCubes(list, { ox = 150, oy = 60, c = 26, top = '#a5f3fc', left = '#22d3ee', right = '#0e7490', stroke = '#0a0d24' } = {}) {
+    const a = c * Math.cos(Math.PI / 6), b = c * 0.5;
+    const P = (x, y, z) => [ox + (x - y) * a, oy + (x + y) * b - z * c];
+    const sorted = [...list].sort((p, q) => (p[0] + p[1] + p[2]) - (q[0] + q[1] + q[2]) || p[2] - q[2]);
+    let s = '';
+    for (const [x, y, z, col] of sorted) {
+      const T = col ? col[0] : top, Lc = col ? col[1] : left, R = col ? col[2] : right;
+      const st = `stroke="${stroke}" stroke-width="1.6" stroke-linejoin="round"`;
+      s += poly([P(x, y, z + 1), P(x + 1, y, z + 1), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)], `fill="${T}" ${st}`);
+      s += poly([P(x + 1, y, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x + 1, y, z + 1)], `fill="${R}" ${st}`);
+      s += poly([P(x, y + 1, z), P(x + 1, y + 1, z), P(x + 1, y + 1, z + 1), P(x, y + 1, z + 1)], `fill="${Lc}" ${st}`);
+    }
+    return s;
+  }
+  // zentriert einen Würfelbau auf (cx, cy)
+  function isoAt(list, cx, cy, c, opt = {}) {
+    const a = c * Math.cos(Math.PI / 6), b = c * 0.5;
+    const xs = [], ys = [];
+    for (const [x, y, z] of list) for (const [dx, dy, dz] of [[0, 0, 1], [1, 0, 1], [0, 1, 1], [1, 1, 0], [1, 0, 0], [0, 1, 0], [1, 1, 1]]) {
+      xs.push((x + dx - y - dy) * a); ys.push((x + dx + y + dy) * b - (z + dz) * c);
+    }
+    const ox = cx - (Math.min(...xs) + Math.max(...xs)) / 2, oy = cy - (Math.min(...ys) + Math.max(...ys)) / 2;
+    return isoCubes(list, { ...opt, ox, oy, c });
+  }
+  const norm3 = (cs) => { const m = [0, 1, 2].map(k => Math.min(...cs.map(p => p[k]))); return cs.map(p => p.map((v, k) => v - m[k])); };
+  const rotZ = (cs, n) => { let r = cs; for (let i = 0; i < n; i++) r = r.map(([x, y, z]) => [y, -x, z]); return norm3(r); };
+  const mirX = (cs) => norm3(cs.map(([x, y, z]) => [-x, y, z]));
+
+  // 3D-Bau: gedreht oder gespiegelt?
+  // Turm aus drei Würfeln + L-förmige Reihe; in jeder gezeigten Lage ist jeder Würfel sichtbar (z-Buffer geprüft)
+  const BAU = [[0, 0, 0], [0, 0, 1], [0, 0, 2], [1, 0, 0], [2, 0, 0], [2, 1, 0]];
+  const BAU_OPTS = [mirX(rotZ(BAU, 2)), mirX(BAU), mirX(rotZ(BAU, 3)), rotZ(BAU, 1)]; // nur D ist echt gedreht (Vierteldrehung)
+  function svgBau3D() {
+    let s = isoAt(BAU, 150, 58, 19);
+    BAU_OPTS.forEach((cs, i) => {
+      const bx = 6 + i * 74;
+      s += box(bx, 118, 68, 84) + isoAt(cs, bx + 34, 160, 13) + tx(bx + 34, 224, L[i]);
+    });
+    return svg('0 0 304 234', s);
+  }
+
+  // Farbiges Würfelnetz (Kreuz) und vier Würfel
+  const NETZ_FARBEN = [[1, 0, PINK], [1, 1, CYAN], [1, 2, GOLD], [1, 3, GREEN], [0, 1, WHITE], [2, 1, VIOLET]];
+  const FARBWUERFEL = [[PINK, CYAN, VIOLET], [CYAN, PINK, GOLD], [WHITE, PINK, CYAN], [VIOLET, CYAN, PINK]]; // [oben, links, rechts] – bunte Seite außen: nur A möglich (B: Gegenseiten, C/D: spiegelverkehrt)
+  function svgFarbNetz() {
+    let s = '';
+    const c = 30, x0 = 10, y0 = 14;
+    for (const [x, y, col] of NETZ_FARBEN) s += `<rect x="${x0 + x * c}" y="${y0 + y * c}" width="${c}" height="${c}" fill="${col}" stroke="#0a0d24" stroke-width="2"/>`;
+    FARBWUERFEL.forEach(([t, l, r], i) => {
+      const cx = 140 + (i % 2) * 80, cy = 12 + Math.floor(i / 2) * 76;
+      s += isoAt([[0, 0, 0, [t, l, r]]], cx + 34, cy + 36, 30) + tx(cx - 4, cy + 30, L[i], 18);
+    });
+    return svg('0 0 300 164', s);
+  }
+
+  // Labyrinth 8 × 8: Zellcode 1 = Wand rechts, 2 = Wand unten (verifiziert per Breitensuche)
+  const MAZE = '2100322102323221321032012221011301223123302222312310203122232223';
+  const MAZE_ENT = [[2, 0, 'N'], [7, 2, 'E'], [5, 7, 'S'], [0, 5, 'W']];
+  function svgLabyrinth() {
+    const c = 26, ox = 46, oy = 30, n = 8;
+    let s = '';
+    const W = (x1, y1, x2, y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${CYAN}" stroke-width="3" stroke-linecap="round"/>`;
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const v = +MAZE[y * n + x], X = ox + x * c, Y = oy + y * c;
+      const ent = (side) => MAZE_ENT.some(e => e[0] === x && e[1] === y && e[2] === side);
+      if (v & 1 && !ent('E')) s += W(X + c, Y, X + c, Y + c);
+      if (v & 2 && !ent('S')) s += W(X, Y + c, X + c, Y + c);
+      if (y === 0 && !ent('N')) s += W(X, Y, X + c, Y);
+      if (x === 0 && !ent('W')) s += W(X, Y, X, Y + c);
+    }
+    // Ziel (Stern) in Zelle 3,3
+    s += poly(Array.from({ length: 10 }, (_, i) => { const a = (-90 + i * 36) * Math.PI / 180, r = i % 2 ? 4.5 : 10; return [ox + 3.5 * c + r * Math.cos(a), oy + 3.5 * c + r * Math.sin(a)]; }), `fill="${GOLD}"`);
+    const lab = [[ox + 2.5 * c, oy - 12], [ox + 8 * c + 14, oy + 2.5 * c + 6], [ox + 5.5 * c, oy + 8 * c + 22], [ox - 14, oy + 5.5 * c + 6]];
+    lab.forEach(([x, y], i) => { s += tx(x, y, L[i], 18); });
+    return svg('0 0 300 270', s);
+  }
+
+  // Eimer an Zahnrädern
+  function svgEimer() {
+    const X = [40, 96, 152, 208], y = 56, r = 26;
+    const side = [1, -1, -1, -1]; // Seil rechts (+1) oder links (−1) an der Trommel
+    let s = '';
+    X.forEach((x, i) => { s += gearPath(x, y, r, 11, i % 2 ? Math.PI / 11 : 0); });
+    X.forEach((x, i) => {
+      const rx = x + side[i] * 15;
+      s += `<line x1="${rx}" y1="${y}" x2="${rx}" y2="${150}" stroke="${WHITE}" stroke-width="3"/>`;
+      s += `<circle cx="${x}" cy="${y}" r="15" fill="#6d28d9" stroke="${WHITE}" stroke-width="2"/>`;
+      s += path(`M ${rx - 11} 150 L ${rx + 11} 150 L ${rx + 8} 174 L ${rx - 8} 174 Z`, `fill="${GOLD}"`) + path(`M ${rx - 11} 150 Q ${rx} 139 ${rx + 11} 150`, `fill="none" stroke="${GOLD}" stroke-width="2"`);
+      s += tx(rx, 198, L[i], 18);
+    });
+    const ad = `<defs><marker id="p-ah1" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${GOLD}"/></marker></defs>`;
+    s += path(`M ${X[0] - 26} ${y - 34} A 40 40 0 0 1 ${X[0] + 26} ${y - 34}`, `fill="none" stroke="${GOLD}" stroke-width="3.5" marker-end="url(#p-ah1)"`);
+    return svg('0 0 250 210', ad + s);
+  }
+
+  // Ringe: an jeder Kreuzung liegt einer oben, der untere hat dort eine Lücke
+  function ringArcs(cx, cy, R, gaps, col, half = 0.3) {
+    // Kreis als Bögen zwischen den Lücken (gaps = Winkel in rad)
+    const g = [...gaps].map(a => (a + 2 * Math.PI) % (2 * Math.PI)).sort((p, q) => p - q);
+    if (!g.length) return `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${col}" stroke-width="7"/>`;
+    let d = '';
+    g.forEach((a, i) => {
+      const s0 = a + half, e0 = (i + 1 < g.length ? g[i + 1] : g[0] + 2 * Math.PI) - half;
+      const large = e0 - s0 > Math.PI ? 1 : 0;
+      d += `M ${f1(cx + R * Math.cos(s0))} ${f1(cy + R * Math.sin(s0))} A ${R} ${R} 0 ${large} 1 ${f1(cx + R * Math.cos(e0))} ${f1(cy + R * Math.sin(e0))} `;
+    });
+    return path(d, `fill="none" stroke="${col}" stroke-width="7" stroke-linecap="butt"`);
+  }
+  function svgRinge() {
+    const R = 32, d = 50, y = 62, cols = [PINK, CYAN, GOLD, GREEN, VIOLET];
+    const X = cols.map((_, i) => 50 + i * d);
+    // je Paar (i,i+1): wer liegt oben an der oberen bzw. unteren Kreuzung (0 = linker Ring, 1 = rechter Ring)
+    const over = [[0, 1], [1, 0], [0, 0], [0, 1]]; // C–D: C liegt an beiden Stellen oben → nicht verhakt
+    const gaps = X.map(() => []);
+    const h = Math.sqrt(R * R - (d / 2) ** 2);
+    over.forEach(([top, bot], i) => {
+      [[top, -h], [bot, h]].forEach(([w, dy]) => {
+        const k = i + 1 - w; // der untere Ring bekommt die Lücke
+        gaps[k].push(Math.atan2(dy, (X[i] + d / 2) - X[k]));
+      });
+    });
+    let s = '';
+    X.forEach((x, i) => { s += ringArcs(x, y, R, gaps[i], cols[i]) + tx(x, y + R + 30, L[i], 18); });
+    return svg('0 0 300 128', s);
+  }
+
+  // Schnur mit drei Kreuzungen (Kleeblatt-Form, aufgeschnitten)
+  function knotCurve() {
+    const P = [];
+    const d = 0.32, n = 260;
+    for (let i = 0; i <= n; i++) {
+      const t = Math.PI + d + (2 * Math.PI - 2 * d) * i / n;
+      P.push([Math.sin(t) + 2 * Math.sin(2 * t), -(Math.cos(t) - 2 * Math.cos(2 * t))]);
+    }
+    const ext = (a, b) => { const dx = a[0] - b[0], dy = a[1] - b[1], l = Math.hypot(dx, dy); return [a[0] + dx / l * 0.9, a[1] + dy / l * 0.9]; };
+    P.unshift(ext(P[0], P[3])); P.push(ext(P[P.length - 1], P[P.length - 4]));
+    return P;
+  }
+  function knotCrossings(P) {
+    const X = [];
+    for (let i = 0; i < P.length - 1; i++) for (let j = i + 2; j < P.length - 1; j++) {
+      const [a, b] = [P[i], P[i + 1]], [c, e] = [P[j], P[j + 1]];
+      const den = (b[0] - a[0]) * (e[1] - c[1]) - (b[1] - a[1]) * (e[0] - c[0]);
+      if (Math.abs(den) < 1e-12) continue;
+      const t = ((c[0] - a[0]) * (e[1] - c[1]) - (c[1] - a[1]) * (e[0] - c[0])) / den;
+      const u = ((c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0])) / den;
+      if (t >= 0 && t < 1 && u >= 0 && u < 1) X.push([i, j]);
+    }
+    return X;
+  }
+  // pattern: je Kreuzung (sortiert nach erstem Durchlauf) true = beim ersten Durchlauf oben; der untere Strang bekommt eine Lücke
+  function svgKnotCell(ox, oy, sc, pattern, col) {
+    const P = knotCurve().map(([x, y]) => [ox + x * sc, oy + y * sc]);
+    const X = knotCrossings(P).sort((p, q) => p[0] - q[0]);
+    const skip = new Set();
+    X.forEach(([i, j], k) => { const u = pattern[k] ? j : i; for (let m = u - 3; m <= u + 4; m++) skip.add(m); });
+    let d = '', pen = false;
+    P.forEach((p, m) => {
+      if (skip.has(m)) { pen = false; return; }
+      d += `${pen ? 'L' : 'M'} ${f1(p[0])} ${f1(p[1])} `; pen = true;
+    });
+    return path(d, `fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"`);
+  }
+  function svgKnoten() {
+    // Durchläufe entlang der Schnur: Kreuzung 1,2,3,1,2,3 – abwechselnd über/unter ⇔ pattern [true,false,true]
+    const pats = [[true, false, true], [true, true, false], [false, true, true], [true, true, true]];
+    let s = '';
+    pats.forEach((p, i) => {
+      const cx = 78 + (i % 2) * 148, cy = 64 + Math.floor(i / 2) * 128;
+      s += svgKnotCell(cx, cy, 15.5, p, [PINK, CYAN, GOLD, GREEN][i]) + tx(cx - 66, cy - 40, L[i], 18);
+    });
+    return svg('0 0 300 254', s);
+  }
+
+  // Papier zweimal falten, dann schneiden
+  function paper(x, y, w, h, holes = '') {
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${WHITE}"/>` + holes;
+  }
+  function unfolded(x, y, s, { center = true, corners = false, notchLR = [true, true], notchTB = false }) {
+    // Blatt s×s; Kerben = Dreiecke
+    const B = DARK, q = s / 4, k = s * 0.1;
+    let o = `<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${WHITE}"/>`;
+    if (center) o += `<circle cx="${x + s / 2}" cy="${y + s / 2}" r="${s * 0.12}" fill="${B}"/>`;
+    if (corners) for (const [cx, cy, sx, sy] of [[x, y, 1, 1], [x + s, y, -1, 1], [x, y + s, 1, -1], [x + s, y + s, -1, -1]]) {
+      const r = s * 0.12;
+      o += path(`M ${cx} ${cy} L ${cx + sx * r} ${cy} A ${r} ${r} 0 0 ${sx * sy > 0 ? 1 : 0} ${cx} ${cy + sy * r} Z`, `fill="${B}"`);
+    }
+    for (const yy of [y + q, y + 3 * q]) {
+      if (notchLR[1]) o += poly([[x + s, yy - k], [x + s - k * 1.3, yy], [x + s, yy + k]], `fill="${B}"`);
+      if (notchLR[0]) o += poly([[x, yy - k], [x + k * 1.3, yy], [x, yy + k]], `fill="${B}"`);
+    }
+    if (notchTB) for (const xx of [x + q, x + 3 * q]) {
+      o += poly([[xx - k, y], [xx, y + k * 1.3], [xx + k, y]], `fill="${B}"`) + poly([[xx - k, y + s], [xx, y + s - k * 1.3], [xx + k, y + s]], `fill="${B}"`);
+    }
+    return o;
+  }
+  function svgPapier() {
+    const ad = `<defs><marker id="p-ah2" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${GOLD}"/></marker></defs>`;
+    let s = ad;
+    // 1: senkrecht falten (links auf rechts)
+    s += paper(14, 24, 70, 70) + `<line x1="49" y1="20" x2="49" y2="98" stroke="${PINK}" stroke-width="2.5" stroke-dasharray="5 4"/>`;
+    s += path('M 26 50 Q 49 28 72 50', `fill="none" stroke="${GOLD}" stroke-width="3" marker-end="url(#p-ah2)"`);
+    // 2: waagrecht falten (oben auf unten)
+    s += paper(124, 24, 35, 70) + `<line x1="120" y1="59" x2="163" y2="59" stroke="${PINK}" stroke-width="2.5" stroke-dasharray="5 4"/>`;
+    s += path('M 168 36 Q 184 59 168 82', `fill="none" stroke="${GOLD}" stroke-width="3" marker-end="url(#p-ah2)"`);
+    // 3: schneiden (Faltkanten: links und oben)
+    const x = 214, y = 42, w = 35;
+    s += paper(x, y, w, w) + path(`M ${x} ${y} L ${x + 8.4} ${y} A 8.4 8.4 0 0 1 ${x} ${y + 8.4} Z`, `fill="${DARK}"`);
+    s += poly([[x + w, y + 17.5 - 7], [x + w - 9, y + 17.5], [x + w, y + 17.5 + 7]], `fill="${DARK}"`);
+    s += `<line x1="${x}" y1="${y}" x2="${x}" y2="${y + w}" stroke="${PINK}" stroke-width="2.5"/><line x1="${x}" y1="${y}" x2="${x + w}" y2="${y}" stroke="${PINK}" stroke-width="2.5"/>`;
+    s += tx(49, 116, '1', 14) + tx(141, 116, '2', 14) + tx(231, 116, '3', 14);
+    const opts = [
+      { center: true, notchLR: [false, true] },
+      { center: true, notchLR: [true, true] },
+      { center: false, corners: true, notchLR: [true, true] },
+      { center: true, notchLR: [false, false], notchTB: true },
+    ];
+    opts.forEach((o, i) => { const ox = 12 + i * 72; s += unfolded(ox, 134, 60, o) + tx(ox + 30, 218, L[i]); });
+    return svg('0 0 300 228', s);
+  }
+
+  // Hand (H → W) + Uhr
+  function svgWandUhr() {
+    return svg('0 0 300 130', iconHand(62, 52, 1.1) + tx(62, 120, 'H = W', 22) + tx(150, 66, '+', 40) + iconClock(232, 60, 36));
+  }
+
+  // Nur das Spiegelbild des Schildes ist zu sehen
+  function svgSeeSchild() {
+    let s = `<rect x="0" y="0" width="300" height="34" fill="#1f6f4a"/>`;
+    s += `<rect x="0" y="34" width="300" height="146" fill="rgba(34,211,238,.22)"/>`;
+    s += `<rect x="96" y="0" width="7" height="34" fill="${BROWN}"/><rect x="197" y="0" width="7" height="34" fill="${BROWN}"/>`;
+    s += `<rect x="96" y="34" width="7" height="44" fill="${BROWN}" opacity=".75"/><rect x="197" y="34" width="7" height="44" fill="${BROWN}" opacity=".75"/>`;
+    s += `<g opacity=".85"><rect x="40" y="78" width="220" height="62" rx="6" fill="${WHITE}"/>`;
+    s += `<text x="150" y="-94" transform="scale(1,-1)" text-anchor="middle" font-size="38" font-weight="800" fill="${DARK}" font-family="sans-serif">FREIBAD</text></g>`;
+    for (let i = 0; i < 7; i++) s += path(`M ${12 + (i % 3) * 100 + (i > 2 ? 40 : 0)} ${56 + i * 17} q 10 -5 20 0 t 20 0 t 20 0`, `fill="none" stroke="${CYAN}" stroke-width="2" opacity=".55"`);
+    return svg('0 0 300 180', s);
+  }
+
+  // Bau von vorn
+  const VORN = [[0, 0, 0], [1, 0, 0], [2, 0, 0], [0, 1, 0], [0, 2, 0], [0, 0, 1], [0, 0, 2], [2, 0, 1], [1, 2, 0], [1, 2, 1], [2, 2, 0]];
+  function gridView(x, y, cells, c = 14) {
+    return cells.map(([u, v]) => `<rect x="${x + u * c}" y="${y - (v + 1) * c}" width="${c}" height="${c}" fill="${CYAN}" stroke="#0a0d24" stroke-width="1.5"/>`).join('');
+  }
+  function svgVorn() {
+    let s = isoAt(VORN, 160, 90, 22);
+    // Pfeil „vorn“ zeigt auf die linke (+y) Seite
+    s += path('M 46 150 L 78 130', `fill="none" stroke="${GOLD}" stroke-width="3.5" marker-end="url(#p-ah3)"`) + tx(40, 170, 'vorn', 15);
+    s = `<defs><marker id="p-ah3" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${GOLD}"/></marker></defs>` + s;
+    const views = {
+      front: (() => { const m = {}; VORN.forEach(([x, , z]) => { m[x + ',' + z] = [x, z]; }); return Object.values(m); })(),
+      side: (() => { const m = {}; VORN.forEach(([, y, z]) => { m[(2 - y) + ',' + z] = [2 - y, z]; }); return Object.values(m); })(),
+      top: (() => { const m = {}; VORN.forEach(([x, y]) => { m[x + ',' + (2 - y)] = [x, 2 - y]; }); return Object.values(m); })(),
+    };
+    const mirror = views.front.map(([u, v]) => [2 - u, v]);
+    [views.side, mirror, views.top, views.front].forEach((cells, i) => {
+      const bx = 10 + i * 72;
+      s += box(bx, 186, 64, 64) + gridView(bx + 11, 186 + 53, cells) + tx(bx + 32, 272, L[i]);
+    });
+    return svg('0 0 300 282', s);
+  }
+
+
+  // ---------- Grafiken: sehr schwer ----------
+
+  // Buchstabe + Spiegelbild aneinandergesetzt (Striche in Einheitskoordinaten)
+  const STROKES = {
+    K: [[0, 0, 0, 1], [1, 0, 0, 0.5], [0, 0.5, 1, 1]],
+    L: [[0, 0, 0, 1], [0, 1, 1, 1]],
+    M: [[0, 1, 0, 0], [0, 0, 0.5, 0.6], [0.5, 0.6, 1, 0], [1, 0, 1, 1]],
+    N: [[0, 1, 0, 0], [0, 0, 1, 1], [1, 1, 1, 0]],
+  };
+  function mirrorGlyph(x, y, w, h, ch) {
+    let s = '';
+    for (const [x1, y1, x2, y2] of STROKES[ch]) {
+      for (const m of [false, true]) {
+        const X = (u) => x + (m ? 2 - u : u) * w;
+        s += `<line x1="${f1(X(x1))}" y1="${f1(y + y1 * h)}" x2="${f1(X(x2))}" y2="${f1(y + y2 * h)}" stroke="${GOLD}" stroke-width="4.5" stroke-linecap="round"/>`;
+      }
+    }
+    return s;
+  }
+  function svgSpiegelBuchstaben() {
+    let s = '';
+    ['K', 'L', 'M', 'N'].forEach((ch, i) => {
+      const x = 6 + i * 58;
+      s += `<rect class="cell" x="${x}" y="8" width="52" height="60" rx="6"/>` + mirrorGlyph(x + 9, 20, 17, 36, ch);
+    });
+    s += `<rect class="cell" x="${6 + 4 * 58}" y="8" width="52" height="60" rx="6"/>` + tx(6 + 4 * 58 + 26, 50, '?', 30);
+    return svg('0 0 300 76', s);
+  }
+
+  // Schattenschrift: nur die Schatten von Blockbuchstaben sind gezeichnet
+  const BLOCK = {
+    L: ['X..', 'X..', 'X..', 'X..', 'XXX'], I: ['X', 'X', 'X', 'X', 'X'], C: ['XXX', 'X..', 'X..', 'X..', 'XXX'],
+    H: ['X.X', 'X.X', 'XXX', 'X.X', 'X.X'], T: ['XXX', '.X.', '.X.', '.X.', '.X.'],
+  };
+  function svgSchattenschrift() {
+    const u = 14, d = 6, x0 = 32, y0 = 22;
+    let cells = [], x = 0;
+    for (const ch of 'LICHT') {
+      BLOCK[ch].forEach((row, r) => [...row].forEach((v, c) => { if (v === 'X') cells.push([x + c, r]); }));
+      x += BLOCK[ch][0].length + 1;
+    }
+    const rect = ([c, r], off, fill) => `<rect x="${x0 + c * u + off}" y="${y0 + r * u + off}" width="${u + 0.6}" height="${u + 0.6}" fill="${fill}"/>`;
+    let s = `<defs><mask id="p-mk-licht"><rect x="0" y="0" width="300" height="120" fill="#fff"/>${cells.map(p => rect(p, 0, '#000')).join('')}</mask></defs>`;
+    s += `<g mask="url(#p-mk-licht)">${cells.map(p => rect(p, d, '#8b80d9')).join('')}</g>`;
+    return svg('0 0 300 112', s);
+  }
+
+  // Anfangsbuchstaben der Bilder
+  function svgAnfangsbilder() {
+    let s = '';
+    const xs = [32, 90, 150, 210, 268];
+    s += poly([[xs[0] + 13, 50], [xs[0] + 27, 40], [xs[0] + 27, 60]], `fill="${CYAN}"`) + `<ellipse cx="${xs[0] - 3}" cy="50" rx="19" ry="11" fill="${CYAN}"/><circle cx="${xs[0] - 13}" cy="47" r="2.5" fill="${DARK}"/>`;
+    s += iconEgg(xs[1], 52, 0.8) + iconClock(xs[2], 50, 24) + iconEgg(xs[3], 52, 0.8) + iconRing(xs[4], 52, 0.9);
+    return svg('0 0 300 96', s);
+  }
+
+  // Innen oder außen? Rand eines spiralförmigen Gebiets (eine einzige geschlossene Linie)
+  const SPIRALE = ['XXXXXXXXX', '........X', 'XXXXXXX.X', 'X.....X.X', 'X.XXX.X.X', 'X.X...X.X', 'X.XXXXX.X', 'X.......X', 'XXXXXXXXX'];
+  const SPIRALE_PUNKTE = [[4, 4, 'A'], [2, 5, 'B'], [6, 5, 'C'], [3, 5, 'D'], [8, 5, 'E'], [4, 2, 'F']];
+  function svgInnenAussen() {
+    const c = 27, ox = 28, oy = 6, H = SPIRALE.length, W = SPIRALE[0].length;
+    const inR = (x, y) => y >= 0 && y < H && x >= 0 && x < W && SPIRALE[y][x] === 'X';
+    let s = '';
+    for (let y = 0; y <= H; y++) for (let x = 0; x <= W; x++) {
+      if (x < W && inR(x, y) !== inR(x, y - 1)) s += ln(ox + x * c, oy + y * c, ox + (x + 1) * c, oy + y * c);
+      if (y < H && inR(x, y) !== inR(x - 1, y)) s += ln(ox + x * c, oy + y * c, ox + x * c, oy + (y + 1) * c);
+    }
+    // Beschriftung in Richtung einer Nachbarzelle ohne Linie dazwischen, damit kein Buchstabe eine Linie berührt
+    const labelAt = (x, y) => {
+      const free = (dx, dy) => inR(x, y) === inR(x + dx, y + dy);
+      if (free(1, 0)) return [8, 4.3, 'start'];
+      if (free(-1, 0)) return [-8, 4.3, 'end'];
+      if (free(0, 1)) return [0, 17, 'middle'];
+      return [0, -8, 'middle'];
+    };
+    SPIRALE_PUNKTE.forEach(([x, y, l]) => {
+      const px = ox + x * c + c / 2, py = oy + y * c + c / 2, [dx, dy, anchor] = labelAt(x, y);
+      s += `<circle cx="${px}" cy="${py}" r="4" fill="${PINK}"/>` + tx(px + dx, py + dy, l, 12, `text-anchor="${anchor}"`);
+    });
+    return svg('0 0 300 256', s);
+  }
+
+  // Draufsicht: Türme bilden einen Buchstaben
+  const TUERME = [[0, 0, 3], [0, 1, 2], [0, 2, 3], [0, 3, 2], [0, 4, 3], [1, 0, 1], [2, 0, 1], [1, 2, 1], [2, 2, 1], [1, 4, 1], [2, 4, 1]];
+  function svgDraufsicht() {
+    const cubes = [];
+    for (const [x, y, h] of TUERME) for (let z = 0; z < h; z++) cubes.push([x, y, z]);
+    const c = 20, a = c * Math.cos(Math.PI / 6), b = c * 0.5;
+    const ox = 150 - (3 - 5) * a / 2, oy = 150 - (3 + 5) * b / 2;
+    const P = (x, y) => [ox + (x - y) * a, oy + (x + y) * b];
+    let s = '';
+    for (let x = 0; x < 3; x++) for (let y = 0; y < 5; y++) s += poly([P(x, y), P(x + 1, y), P(x + 1, y + 1), P(x, y + 1)], `fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.25)" stroke-width="1"`);
+    s += isoCubes(cubes, { ox, oy, c, top: '#fde68a', left: '#ffc940', right: '#b7791f' });
+    // Leserichtung: Pfeil neben dem Bau, parallel zum langen Balken, zeigt zur Oberkante des Buchstabens
+    const [ax1, ay1] = P(3.75, 3.6), [ax2, ay2] = P(3.75, 0.9);
+    s += `<defs><marker id="p-ah5" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${PINK}"/></marker></defs>`;
+    s += `<line x1="${f1(ax1)}" y1="${f1(ay1)}" x2="${f1(ax2)}" y2="${f1(ay2)}" stroke="${PINK}" stroke-width="3.5" stroke-linecap="round" marker-end="url(#p-ah5)"/>`;
+    const [lx, ly] = P(4.1, 0.1);
+    s += `<text class="tx" x="${f1(lx)}" y="${f1(ly + 5)}" text-anchor="start" font-size="15" font-weight="700" fill="${PINK}" style="fill:${PINK}">oben</text>`;
+    return svg('0 0 300 230', s);
+  }
+
+  // Becher und Röhren
+  function cup(cx, top, label, water = 0) {
+    const w1 = 56, w2 = 44, h = 50;
+    let s = '';
+    if (water) s += poly([[cx - w2 / 2 - (w1 - w2) / 2 * water, top + h * (1 - water)], [cx + w2 / 2 + (w1 - w2) / 2 * water, top + h * (1 - water)], [cx + w2 / 2, top + h], [cx - w2 / 2, top + h]], `fill="rgba(34,211,238,.55)"`);
+    s += `<polyline points="${pts([[cx - w1 / 2, top], [cx - w2 / 2, top + h], [cx + w2 / 2, top + h], [cx + w1 / 2, top]])}" fill="none" stroke="${WHITE}" stroke-width="3" stroke-linejoin="round"/>`;
+    return s + tx(cx, top + 36, label, 18);
+  }
+  function svgBecher() {
+    const pipe = (d) => path(d, `fill="none" stroke="${VIOLET}" stroke-width="6" stroke-linejoin="round"`);
+    let s = '';
+    // Hahn über A
+    s += `<rect x="128" y="0" width="34" height="9" rx="3" fill="${SOFT}"/><rect x="152" y="0" width="10" height="16" rx="3" fill="${SOFT}"/>`;
+    s += `<line x1="157" y1="18" x2="157" y2="44" stroke="${CYAN}" stroke-width="3" stroke-dasharray="4 4"/>`;
+    // Röhren (Seitenröhre beginnt an der Becherwand in der jeweiligen Höhe)
+    s += pipe('M 125.6 35 H 60 V 104');      // A links, hoch → B
+    s += pipe('M 172.7 57 H 240 V 104');     // A rechts, tief → C
+    s += pipe('M 240 154 V 196');            // C Boden → F (verschlossen)
+    s += pipe('M 216.4 118 H 150 V 196');    // C links, Mitte → E
+    s += pipe('M 60 154 V 196');             // B Boden → D
+    s += `<rect x="229" y="166" width="22" height="10" rx="2" fill="${RED}"/>`;
+    s += cup(150, 22, 'A', 0.15) + cup(60, 104, 'B') + cup(240, 104, 'C') + cup(60, 196, 'D') + cup(150, 196, 'E') + cup(240, 196, 'F');
+    return svg('0 0 300 254', s);
+  }
+
+  // Laser und beidseitige Spiegel
+  const LASER = ['.\\...', '\\\\\\..', '.\\\\/.', '.....', '\\\\/..'];
+  function svgLaser() {
+    const c = 40, ox = 52, oy = 34;
+    let s = '';
+    for (let i = 0; i <= 5; i++) s += `<line x1="${ox}" y1="${oy + i * c}" x2="${ox + 5 * c}" y2="${oy + i * c}" stroke="rgba(255,255,255,.18)" stroke-width="1"/><line x1="${ox + i * c}" y1="${oy}" x2="${ox + i * c}" y2="${oy + 5 * c}" stroke="rgba(255,255,255,.18)" stroke-width="1"/>`;
+    LASER.forEach((row, y) => [...row].forEach((ch, x) => {
+      const X = ox + x * c, Y = oy + y * c, m = 7;
+      if (ch === '/') s += `<line x1="${X + m}" y1="${Y + c - m}" x2="${X + c - m}" y2="${Y + m}" stroke="#7dd3fc" stroke-width="5" stroke-linecap="round"/>`;
+      if (ch === '\\') s += `<line x1="${X + m}" y1="${Y + m}" x2="${X + c - m}" y2="${Y + c - m}" stroke="#7dd3fc" stroke-width="5" stroke-linecap="round"/>`;
+    }));
+    // Laser kommt von links in Zeile 3
+    s += `<rect x="2" y="${oy + 2.5 * c - 8}" width="24" height="16" rx="4" fill="${RED}"/><line x1="26" y1="${oy + 2.5 * c}" x2="${ox + 12}" y2="${oy + 2.5 * c}" stroke="${RED}" stroke-width="3"/>`;
+    // alle Randausgänge beschriftet (im Uhrzeigersinn ab rechts oben), außer dem Eingang
+    const T = [];
+    for (let i = 0; i < 5; i++) T.push([ox + 5 * c + 14, oy + (i + 0.5) * c + 5]);
+    for (let i = 4; i >= 0; i--) T.push([ox + (i + 0.5) * c, oy + 5 * c + 20]);
+    for (let i = 4; i >= 0; i--) if (i !== 2) T.push([ox - 13, oy + (i + 0.5) * c + 5]);
+    for (let i = 0; i < 5; i++) T.push([ox + (i + 0.5) * c, oy - 10]);
+    T.forEach(([x, y], i) => { s += tx(x, y, 'ABCDEFGHIJKLMNOPQRS'[i], 15); });
+    return svg('0 0 300 270', s);
+  }
+
+  // Sternvielecke: einer besteht aus zwei getrennten Linien
+  function star(cx, cy, r, n, k, col) {
+    const V = ngon(cx, cy, r, n);
+    let s = '';
+    for (let i = 0; i < n; i++) { const [a, b] = [V[i], V[(i + k) % n]]; s += `<line x1="${f1(a[0])}" y1="${f1(a[1])}" x2="${f1(b[0])}" y2="${f1(b[1])}" stroke="${col}" stroke-width="2.5" stroke-linecap="round"/>`; }
+    return s;
+  }
+  function svgSterne() {
+    let s = '';
+    [[7, 3], [10, 4], [9, 2], [8, 3]].forEach(([n, k], i) => { const cx = 40 + i * 73; s += star(cx, 44, 32, n, k, CYAN) + tx(cx, 100, L[i]); });
+    return svg('0 0 300 110', s);
+  }
+
+  // Zahnräder mit Buchstabenscheibe
+  function svgZahnradBuchstabe() {
+    const A = [66, 104, 50, 15], B = [147, 104, 27, 8], D = [222, 104, 40, 12];
+    let s = gearPath(A[0], A[1], A[2], A[3], 0) + gearPath(B[0], B[1], B[2], B[3], Math.PI / 8) + gearPath(D[0], D[1], D[2], D[3], Math.PI / 12);
+    const letters = ['K', 'T', 'R', 'N', 'S', 'P', 'M', 'H'];
+    letters.forEach((l, i) => {
+      const a = i * Math.PI / 4;
+      s += `<text x="${f1(D[0] + 25 * Math.sin(a))}" y="${f1(D[1] - 25 * Math.cos(a) + 5)}" text-anchor="middle" font-size="13" font-weight="800" fill="${DARK}" font-family="sans-serif">${l}</text>`;
+    });
+    s += `<circle cx="${D[0]}" cy="${D[1]}" r="6" fill="#8b5cf6"/>`;
+    s += poly([[D[0] - 8, D[1] - 66], [D[0] + 8, D[1] - 66], [D[0], D[1] - 52]], `fill="${RED}"`);
+    s += `<text x="${A[0]}" y="${A[1] + 6}" text-anchor="middle" font-size="18" font-weight="800" fill="${DARK}" font-family="sans-serif">A</text><text x="${B[0]}" y="${B[1] + 5}" text-anchor="middle" font-size="13" font-weight="800" fill="${DARK}" font-family="sans-serif">B</text>`;
+    s += tx(A[0], 186, '15 Zähne', 13) + tx(B[0], 186, '8 Zähne', 13) + tx(D[0], 186, '12 Zähne', 13);
+    const ad = `<defs><marker id="p-ah4" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="${GOLD}"/></marker></defs>`;
+    s += path(`M ${A[0] - 40} ${A[1] - 62} A 66 66 0 0 1 ${A[0] + 40} ${A[1] - 62}`, `fill="none" stroke="${GOLD}" stroke-width="3.5" marker-end="url(#p-ah4)"`);
+    return svg('0 0 280 196', ad + s);
+  }
+
+  // Kugelbahn mit Kippweichen
+  const WEICHEN = [0, 1, 0, 1, 1, 1, 0]; // 0 = nach links, 1 = nach rechts (oben, Mitte l/r, unten 1–4)
+  function svgKugelbahn() {
+    const bx = (i) => 21 + i * 36.9, Y = [44, 92, 140], yb = 176;
+    const nx = (lvl, k) => { const span = 8 / (1 << lvl); return (bx(k * span) + bx(k * span + span - 1)) / 2; };
+    let s = '';
+    const lane = (x1, y1, x2, y2) => `<line x1="${f1(x1)}" y1="${y1}" x2="${f1(x2)}" y2="${y2}" stroke="rgba(185,189,232,.55)" stroke-width="3"/>`;
+    for (let lvl = 0; lvl < 3; lvl++) for (let k = 0; k < (1 << lvl); k++) {
+      const x = nx(lvl, k), y = Y[lvl];
+      for (const d of [0, 1]) {
+        const [x2, y2] = lvl < 2 ? [nx(lvl + 1, 2 * k + d), Y[lvl + 1]] : [bx(2 * k + d), yb];
+        s += lane(x, y, x2, y2);
+      }
+    }
+    for (let i = 0; i < 8; i++) s += `<rect x="${f1(bx(i) - 15)}" y="${yb}" width="30" height="30" rx="4" fill="rgba(255,255,255,.06)" stroke="${VIOLET}" stroke-width="2"/>` + tx(bx(i), yb + 22, L[i], 15);
+    let n = 0;
+    for (let lvl = 0; lvl < 3; lvl++) for (let k = 0; k < (1 << lvl); k++, n++) {
+      const x = nx(lvl, k), y = Y[lvl], dir = WEICHEN[n] ? 1 : -1;
+      s += `<line x1="${f1(x - dir * 11)}" y1="${y - 11}" x2="${f1(x + dir * 13)}" y2="${y + 11}" stroke="${GOLD}" stroke-width="6" stroke-linecap="round"/><circle cx="${f1(x)}" cy="${y}" r="3.5" fill="${DARK}"/>`;
+    }
+    [1, 2, 3].forEach((b, i) => { const x = 150 - i * 26; s += `<circle cx="${x}" cy="13" r="10" fill="${PINK}"/>` + `<text x="${x}" y="18" text-anchor="middle" font-size="13" font-weight="800" fill="${DARK}" font-family="sans-serif">${b}</text>`; });
+    s += `<line x1="${f1(nx(0, 0))}" y1="22" x2="${f1(nx(0, 0))}" y2="${Y[0] - 12}" stroke="rgba(185,189,232,.55)" stroke-width="3"/>`;
+    return svg('0 0 300 212', s);
+  }
+
+  // ---------- Fragen ----------
+  QUIZ_ADD([
+    // ===== leicht / mittel =====
+    { id: 'p-baumhaus', fam: 'rebus-kompositum', cat: 'Bilder', type: 'text',
+      q: 'Welches Wort zeigen die beiden Bilder zusammen?', svg: svgBaumHaus(),
+      a: 'BAUMHAUS', r: [1, 1, 0, 0, 0], ex: 'Baum + Haus = Baumhaus.' },
+    { id: 'p-schatten-laenge', fam: 'schatten-laenge', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Die Sonne scheint auf vier Pfähle. Welcher Schatten kann so nicht stimmen?', svg: svgSchatten(),
+      opts: ['A', 'B', 'C', 'D'], a: 1, r: [2, 1, 1, 0, 0],
+      ex: 'Bei gleichem Sonnenstand gilt: Je höher der Pfahl, desto länger der Schatten – hier ist jeder gut halb so lang wie sein Pfahl. Nur der höchste Pfahl B hat einen viel zu kurzen Schatten.' },
+    { id: 'p-silhouette', fam: 'silhouette', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Welcher Schattenriss gehört zu dem Roboter oben?', svg: svgSilhouette(),
+      opts: ['A', 'B', 'C', 'D'], a: 1, r: [1, 1, 1, 0, 0],
+      ex: 'Antenne links, der Arm rechts im Bild oben – das passt nur bei B. A ist spiegelverkehrt, bei C ist der falsche Arm oben, bei D sitzt die Antenne rechts.' },
+    { id: 'p-ecken-folge', fam: 'ecken-abschneiden', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Welches Feld setzt die Reihe fort?', svg: svgEckenFolge(),
+      opts: ['A', 'B', 'C', 'D'], a: 2, r: [1, 1, 1, 0, 0],
+      ex: 'Im Uhrzeigersinn wird jedes Mal eine Ecke mehr abgeschnitten, und die Farbe wechselt pink – türkis. Als Nächstes: alle vier Ecken weg, pink.' },
+    { id: 'p-netz-kein-wuerfel', fam: 'netz-kein-wuerfel', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Drei dieser Netze lassen sich zu einem Würfel falten. Welches nicht?', svg: svgNetze(),
+      opts: ['A', 'B', 'C', 'D'], a: 2, r: [2, 1, 1, 1, 0],
+      ex: 'Bei C bilden die vier Felder unten den Rundum-Streifen. Beide oberen Felder klappen dann auf dieselbe Deckelseite – eine Seite bleibt offen.' },
+    { id: 'p-zahnrad-schnell', fam: 'zahnrad-tempo', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Die Zahnräder greifen ineinander und drehen sich. Welches dreht sich am schnellsten?', svg: svgZahnradSchnell(),
+      opts: ['A', 'B', 'C', 'D'], a: 1, r: [1, 1, 1, 0, 0],
+      ex: 'Am Rand laufen alle Zähne gleich schnell vorbei. Das kleinste Rad (B) braucht dafür die meisten Umdrehungen.' },
+    { id: 'p-matrix-viertel', fam: 'matrix-drehen', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Welches Feld gehört an die Stelle des Fragezeichens?', svg: svgMatrixDrehen(),
+      opts: ['A', 'B', 'C', 'D'], a: 3, r: [2, 1, 1, 0, 0],
+      ex: 'Von Feld zu Feld wandert der Viertelkreis eine Ecke im Uhrzeigersinn weiter, jede Zeile hat ihre Farbe. Unten: rechts unten, links unten, links oben – in Gold.' },
+    { id: 'p-see-woerter', fam: 'wasser-spiegel', cat: 'Bilder', type: 'choice',
+      q: 'Die Schilder spiegeln sich gleich im ruhigen See. Bei welchem Wort sieht das Spiegelbild genauso aus wie das Schild?', svg: svgSeeWoerter(),
+      opts: ['ECHO', 'KINO', 'HOSE', 'CHOR'], a: 0, r: [2, 2, 1, 0, 0],
+      ex: 'Im Wasser stehen die Buchstaben auf dem Kopf, aber die Reihenfolge bleibt. E, C, H und O sind oben und unten gleich. N, S und R werden verdreht.' },
+    { id: 'p-fisch-tisch', fam: 'rebus-tausch', cat: 'Bilder', type: 'text',
+      q: 'Welches Wort ergibt dieses Bilderrätsel?', svg: svgFischTisch(),
+      a: 'TISCH', r: [1, 2, 0, 0, 0], ex: 'Im FISCH wird das F durch ein T ersetzt: TISCH.' },
+    { id: 'p-kopfstand-form', fam: 'symmetrie-erkennen', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Du drehst das Handy einmal auf den Kopf. Welche Figur sieht danach genauso aus wie vorher?', svg: svgKopfstand(),
+      opts: ['A', 'B', 'C', 'D'], a: 2, r: [1, 1, 2, 0, 0],
+      ex: 'Herz, Mond und Pfeil sehen auf dem Kopf anders aus: Das Herz steht dann mit der Spitze nach oben, der Mond öffnet sich nach links statt nach rechts, der Pfeil zeigt nach unten. Nur die Treppenform C geht durch eine halbe Drehung in sich selbst über.' },
+    // ===== schwer =====
+    { id: 'p-bau-gedreht', fam: 'bau-drehen-spiegeln', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Welcher der vier Würfelbauten ist derselbe wie oben – nur auf dem Tisch gedreht?', svg: svgBau3D(),
+      opts: ['A', 'B', 'C', 'D'], a: 3, r: [2, 2, 1, 1, 0],
+      ex: 'D ist der Bau, um eine Vierteldrehung gedreht. Geht man vom Turm aus die Dreierreihe entlang, knickt der letzte Würfel nach rechts ab – so auch bei D. Bei A, B und C knickt er nach links ab: Das sind Spiegelbilder, durch Drehen allein bekommt man sie nicht.' },
+    { id: 'p-farbwuerfel', fam: 'farbnetz-wuerfel', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Das bunte Netz wird zu einem Würfel gefaltet, die bunte Seite kommt nach außen. Welcher Würfel kann daraus entstehen?', svg: svgFarbNetz(),
+      opts: ['A', 'B', 'C', 'D'], a: 0, r: [2, 2, 1, 1, 0],
+      ex: 'Gegenüber liegen Pink–Gelb, Türkis–Grün und Weiß–Lila. B zeigt Pink und Gelb gleichzeitig – unmöglich. Gefaltet liegt Türkis vorn, Pink oben, Lila rechts: genau die Ecke von A. C und D zeigen zwar drei Nachbarfarben, aber in spiegelverkehrter Reihenfolge – so sähe der Würfel nur aus, wenn die bunte Seite innen läge.' },
+    { id: 'p-labyrinth', fam: 'labyrinth-eingang', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Durch welchen Eingang kommst du zum Stern in der Mitte?', svg: svgLabyrinth(),
+      opts: ['A', 'B', 'C', 'D'], a: 3, r: [2, 1, 1, 1, 0],
+      ex: 'Nur der Weg von D (links) führt bis zum Stern. Von A, B und C aus landet man in abgeschlossenen Bereichen. Tipp: Man kann auch rückwärts vom Stern aus suchen.' },
+    { id: 'p-eimer-hoch', fam: 'zahnrad-eimer', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Das erste Zahnrad dreht sich in Pfeilrichtung. Jeder Eimer hängt an einem Seil, das auf die Achse seines Rads gewickelt ist. Welcher Eimer wird hochgezogen?', svg: svgEimer(),
+      opts: ['A', 'B', 'C', 'D'], a: 2, r: [2, 2, 1, 1, 0],
+      ex: 'Die Räder drehen abwechselnd rechts- und linksherum. Ein Seil wird aufgewickelt, wenn seine Seite der Achse nach oben läuft: beim 3. Rad (rechtsherum) ist das die linke Seite – dort hängt C. Alle anderen Seile werden abgewickelt.' },
+    { id: 'p-ringe', fam: 'ringe-verhakt', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Fünf Ringe liegen auf dem Tisch. Du hebst Ring A hoch. Welche Ringe hängen dann daran?', svg: svgRinge(),
+      opts: ['Nur B', 'B und C', 'B, C und D', 'Alle vier'], a: 1, r: [2, 1, 2, 1, 0],
+      ex: 'Zwei Ringe sind nur verhakt, wenn einer an einer Kreuzung oben und an der anderen unten liegt. C liegt an beiden Kreuzungen über D – die beiden sind gar nicht verbunden.' },
+    { id: 'p-knoten', fam: 'knoten-ziehen', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Du ziehst jede Schnur an beiden Enden kräftig auseinander. Bei welcher bleibt ein Knoten übrig?', svg: svgKnoten(),
+      opts: ['A', 'B', 'C', 'D'], a: 0, r: [2, 2, 1, 1, 0],
+      ex: 'Bei nur drei Kreuzungen bleibt ein Knoten nur, wenn die Schnur entlang ihres Weges immer abwechselnd oben und unten durchläuft. Das ist nur bei A so – bei den anderen läuft sie zweimal hintereinander oben drüber, die Schlingen rutschen heraus.' },
+    { id: 'p-papier-schnitt', fam: 'papier-falten', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Ein Blatt wird zweimal gefaltet, dann wird an der Faltecke und am Rand geschnitten (3). Wie sieht es aufgefaltet aus?', svg: svgPapier(),
+      opts: ['A', 'B', 'C', 'D'], a: 1, r: [2, 2, 1, 1, 0],
+      ex: 'Die Ecke mit beiden Faltkanten ist die Blattmitte: Aus dem Viertelkreis wird ein Loch in der Mitte. Die Kerbe am offenen Rand wird zweimal gespiegelt – vier Kerben, links und rechts.' },
+    { id: 'p-wanduhr', fam: 'rebus-tausch-kompositum', cat: 'Bilder', type: 'text',
+      q: 'Welches Wort ergibt dieses Bilderrätsel?', svg: svgWandUhr(),
+      a: 'WANDUHR', r: [2, 2, 1, 0, 0], ex: 'HAND mit W statt H wird WAND – dazu die UHR: WANDUHR.' },
+    { id: 'p-see-schild', fam: 'wasser-spiegel', cat: 'Bilder', type: 'text',
+      q: 'Das Schild am Ufer ist hier abgeschnitten – du siehst nur sein Spiegelbild im See. Was steht auf dem Schild?', svg: svgSeeSchild(),
+      a: 'FREIBAD', r: [1, 1, 1, 0, 0], ex: 'Im Wasser steht die Schrift auf dem Kopf, die Reihenfolge der Buchstaben bleibt aber: FREIBAD.' },
+    { id: 'p-vorderansicht', fam: 'wuerfelbau-ansicht', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Wie sieht der Würfelbau von vorn aus, also aus Pfeilrichtung?', svg: svgVorn(),
+      opts: ['A', 'B', 'C', 'D'], a: 3, r: [2, 2, 1, 1, 0],
+      ex: 'Von vorn sieht man links den Turm aus drei Würfeln, daneben zwei Spalten mit je zwei Würfeln: D. A ist die Ansicht von rechts, B spiegelverkehrt, C die Ansicht von oben.' },
+    // ===== sehr schwer =====
+    { id: 'p-spiegel-buchstaben', fam: 'buchstabe-mit-spiegelbild', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Welcher Buchstabe steckt im nächsten Bild?', svg: svgSpiegelBuchstaben(),
+      a: 'O', r: [2, 4, 1, 0, 0],
+      ex: 'Jedes Bild ist ein Buchstabe, an den rechts sein Spiegelbild angesetzt ist: K, L, M, N – als Nächstes kommt O.' },
+    { id: 'p-schattenschrift', fam: 'schattenschrift', cat: 'Bilder', type: 'text',
+      q: 'Welches Wort ist hier zu sehen?', svg: svgSchattenschrift(),
+      a: 'LICHT', r: [1, 2, 1, 0, 0],
+      ex: 'Gezeichnet sind nur die Schatten von unsichtbaren Blockbuchstaben – die Lücken darüber bilden das Wort LICHT.' },
+    { id: 'p-anfangsbilder', fam: 'bilder-anfangsbuchstaben', cat: 'Bilder', type: 'text',
+      q: 'Welches Wort verstecken diese Bilder?', svg: svgAnfangsbilder(),
+      a: 'FEUER', r: [2, 2, 1, 0, 0],
+      ex: 'Die Anfangsbuchstaben: Fisch, Ei, Uhr, Ei, Ring – FEUER.' },
+    { id: 'p-innen-aussen', fam: 'innen-aussen', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Die weiße Linie ist eine einzige geschlossene Linie. Fünf Punkte liegen innerhalb, einer außerhalb. Welcher liegt außerhalb?', svg: svgInnenAussen(),
+      a: 'D', r: [2, 2, 1, 2, 0],
+      ex: 'Vom Rand aus wechselt man bei jedem Überqueren einer Linie zwischen außen und innen. D liegt im Gang, der von links oben als Außenbereich hineinführt – alle anderen Punkte liegen im Innern des spiralförmigen Bandes.' },
+    { id: 'p-draufsicht-buchstabe', fam: 'wuerfelbau-ansicht', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Von oben betrachtet bilden die Würfeltürme einen Großbuchstaben – der Pfeil zeigt, wo bei ihm oben ist. Welcher Buchstabe ist es? (Kein Turm ist verdeckt.)', svg: svgDraufsicht(),
+      a: 'E', r: [2, 2, 1, 1, 0],
+      ex: 'Von oben zählt nur, welche Bodenfelder belegt sind, nicht die Höhe: ein langer Balken in Pfeilrichtung, links davon, mit drei Armen nach rechts – oben, in der Mitte und unten. Das ist ein E.' },
+    { id: 'p-becher', fam: 'becher-roehren', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Wasser läuft langsam in Becher A. Der rote Stopfen ist zu. Welcher Becher ist als Erster bis zum Rand voll?', svg: svgBecher(),
+      a: 'E', r: [3, 2, 2, 1, 0],
+      ex: 'A läuft über das tiefere rechte Rohr nach C ab, bevor es das linke Rohr erreicht – B und D bleiben leer. In C ist das Bodenrohr verstopft, also steigt das Wasser bis zum Seitenrohr und fließt nach E. E hat keinen Abfluss und wird als Erster voll.' },
+    { id: 'p-laser', fam: 'laser-spiegel', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Der Laserstrahl wird von den Spiegeln abgelenkt (sie spiegeln auf beiden Seiten). Bei welchem Buchstaben verlässt er das Feld?', svg: svgLaser(),
+      a: 'O', r: [2, 2, 2, 2, 0],
+      ex: 'Rechts, runter, rechts, hoch, links – dann trifft er den ersten Spiegel noch einmal von hinten und läuft nach oben, links und oben hinaus bei O. Wer den Spiegel nur als einseitig ansieht, landet woanders.' },
+    { id: 'p-sterne', fam: 'sternlinien', cat: 'Bilder', type: 'choice', noShuffle: true,
+      q: 'Drei Sterne bestehen aus einer einzigen geschlossenen Zickzacklinie. Einer besteht aus zwei getrennten Linien. Welcher?', svg: svgSterne(),
+      opts: ['A', 'B', 'C', 'D'], a: 1, r: [2, 2, 1, 2, 0],
+      ex: 'B (zehn Spitzen, immer vier weiter verbunden) sind zwei übereinanderliegende Fünfsterne. Bei den anderen kommt man beim Nachfahren erst nach allen Spitzen wieder am Start an.' },
+    { id: 'p-zahnrad-buchstabe', fam: 'zahnrad-buchstabe', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Rad A dreht sich genau einmal ganz herum, in Pfeilrichtung. Welcher Buchstabe des rechten Rads steht danach unter dem roten Zeiger?', svg: svgZahnradBuchstabe(),
+      a: 'M', r: [3, 2, 1, 2, 1],
+      ex: 'A schiebt 15 Zähne weiter, das rechte Rad (12 Zähne) dreht sich also 1¼-mal – über das Zwischenrad B in dieselbe Richtung wie A, im Uhrzeigersinn. Die Viertelumdrehung bringt den Buchstaben von links (M) nach oben.' },
+    { id: 'p-kugelbahn', fam: 'kugelbahn-weichen', cat: 'Bilder', type: 'text', letters: true,
+      q: 'Drei Kugeln rollen nacheinander hinein. Jede Weiche lenkt eine Kugel zu ihrem tiefer liegenden Ende und klappt danach auf die andere Seite um. In welches Fach fällt die dritte Kugel?', svg: svgKugelbahn(),
+      a: 'B', r: [3, 2, 1, 2, 0],
+      ex: 'Kugel 1: links, rechts, rechts → D. Kugel 2: oben jetzt rechts, dann links, rechts → F. Kugel 3: oben wieder links, die Weiche darunter ist inzwischen links tiefer, die unterste rechts → B.' },
+  ]);
+})();
+
 // ---- logik.js ----
 (function () {
   QUIZ_ADD([
@@ -1455,6 +2480,218 @@
       q: 'Welcher Buchstabe kommt als Nächstes?' + seq(['A', 'B', 'D', 'O', 'P', 'Q', '?']),
       a: 'R', r: [1, 4, 1, 1, 0], letters: true,
       ex: 'Großbuchstaben mit einer geschlossenen Fläche („Loch“): A, B, D, O, P, Q – und R.' },
+  ]);
+})();
+
+// ---- wortspiel.js ----
+(function () {
+  const { seq, eq } = (typeof window !== 'undefined' ? window : globalThis).QSVG;
+  QUIZ_ADD([
+    // ===== leicht / mittel =====
+    { id: 'w-schloss', fam: 'w-teekessel-gebaeude', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort bezeichnet sowohl ein Gebäude, in dem Könige wohnen, als auch etwas, das an einer Tür sitzt?',
+      opts: ['Schloss', 'Burg', 'Riegel', 'Palast'], a: 0, r: [1, 1, 0, 0, 0],
+      ex: 'Das Schloss ist der Königssitz – und das Türschloss, in das der Schlüssel kommt.' },
+    { id: 'w-meer', fam: 'w-gleichklang', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort klingt ausgesprochen genauso wie „mehr“?',
+      opts: ['Meer', 'Mehl', 'Moor', 'Herr'], a: 0, r: [1, 1, 0, 0, 0],
+      ex: '„Meer“ und „mehr“ werden gleich ausgesprochen, aber verschieden geschrieben.' },
+    { id: 'w-palme', fam: 'w-anagramm-drilling', cat: 'Sprache', type: 'text',
+      q: 'Aus den Buchstaben von <b>LAMPE</b> kann man zwei andere Wörter legen: Eines regelt den Verkehr, das andere wächst am Strand. Welches wächst am Strand?',
+      a: 'PALME', r: [1, 1, 0, 1, 0],
+      ex: 'LAMPE, AMPEL und PALME bestehen aus genau denselben fünf Buchstaben.' },
+    { id: 'w-leiter', fam: 'w-artikel-bedeutung', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort bedeutet mit „der“ davor etwas ganz anderes als mit „die“?',
+      opts: ['Leiter', 'Gabel', 'Lampe', 'Tasche'], a: 0, r: [1, 2, 0, 0, 0],
+      ex: 'Die Leiter stellt man an die Wand, der Leiter ist der Chef einer Abteilung.' },
+    { id: 'w-auge-genus', fam: 'w-genus-falle', cat: 'Sprache', type: 'choice',
+      q: 'Alle vier Wörter enden auf -e. Welches davon ist <b>nicht</b> weiblich?',
+      opts: ['Rose', 'Tasche', 'Auge', 'Lampe'], a: 2, r: [1, 1, 1, 0, 0],
+      ex: 'Es heißt die Rose, die Tasche, die Lampe – aber das Auge.' },
+    { id: 'w-leute', fam: 'w-nur-mehrzahl', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort gibt es nur in der Mehrzahl?',
+      opts: ['Leute', 'Menschen', 'Freunde', 'Gäste'], a: 0, r: [1, 1, 1, 0, 0],
+      ex: 'Mensch, Freund und Gast haben eine Einzahl – „ein Leut“ gibt es nicht.' },
+    { id: 'w-material', fam: 'w-fremdwort-mehrzahl', cat: 'Sprache', type: 'choice',
+      q: 'Was ist die richtige Mehrzahl von „das Material“?',
+      opts: ['Materials', 'Materialen', 'Materialien', 'Materiale'], a: 2, r: [1, 0, 1, 0, 1],
+      ex: 'Laut Duden heißt es die Materialien.' },
+    { id: 'w-seit', fam: 'w-seit-seid', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort gehört in die Lücke? „Wir warten schon ___ zwei Stunden.“',
+      opts: ['seit', 'seid'], a: 0, r: [1, 0, 2, 0, 0], noShuffle: true,
+      ex: '„seit“ mit t sagt, seit wann oder wie lange etwas schon dauert. „seid“ mit d kommt von „sein“ (ihr seid).' },
+    { id: 'w-oman', fam: 'w-ausruf-land', cat: 'Sprache', type: 'text',
+      q: 'Jemand ruft genervt: „Oh, Mann!“ Sprich es laut aus. Welches Land hörst du?',
+      a: 'OMAN', r: [1, 2, 0, 0, 1],
+      ex: '„Oh, Mann“ klingt fast genau wie „Oman“, ein Land auf der Arabischen Halbinsel.' },
+    { id: 'w-tier-im-tier', fam: 'w-tier-im-tiernamen', cat: 'Sprache', type: 'choice',
+      q: 'In drei dieser Tiernamen steckt ein anderes Tier. In welchem nicht?',
+      opts: ['Ameise', 'Schwalbe', 'Truthahn', 'Zebra'], a: 3, r: [2, 1, 1, 1, 0],
+      ex: 'A-MEISE, SCH-WAL-BE, TRUT-HAHN – nur im ZEBRA steckt kein weiteres Tier.' },
+    { id: 'w-schmetterling', fam: 'w-ohne-vokale', cat: 'Sprache', type: 'text',
+      q: 'Bei diesem Tier wurden alle Vokale gestrichen. Welches Tier ist es?' + seq(['S', 'C', 'H', 'M', 'T', 'T', 'R', 'L', 'N', 'G']),
+      a: 'SCHMETTERLING', accept: ['SCHMETTERLINGE'], r: [1, 1, 0, 1, 0],
+      ex: 'S-c-h-m-E-t-t-E-r-l-I-n-g: Mit E, E und I wird daraus SCHMETTERLING.' },
+    { id: 'w-bank-plural', fam: 'w-zwei-mehrzahlen', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort hat zwei verschiedene Mehrzahlformen – je nachdem, was gemeint ist?',
+      opts: ['Bank', 'Tisch', 'Stuhl', 'Schrank'], a: 0, r: [1, 2, 0, 0, 0],
+      ex: 'Zum Sitzen sind es Bänke, beim Geld sind es Banken. Tische, Stühle und Schränke haben nur eine Mehrzahl.' },
+    { id: 'w-nagel', fam: 'w-redewendung-woertlich', cat: 'Sprache', type: 'choice',
+      q: 'Welche Redewendung beschreibt – wörtlich genommen – einen gelungenen Hammerschlag?',
+      opts: ['Den Nagel auf den Kopf treffen', 'Ein Brett vor dem Kopf haben', 'Auf dem Holzweg sein', 'Holz vor der Hütte haben'], a: 0, r: [1, 1, 0, 0, 0],
+      ex: 'Wer den Nagel auf den Kopf trifft, hat wörtlich genau richtig gehämmert – im übertragenen Sinn genau das Richtige gesagt.' },
+    { id: 'w-loewenzahn', fam: 'w-scharade', cat: 'Sprache', type: 'text',
+      q: 'Das Erste brüllt, das Zweite beißt – das Ganze blüht gelb auf der Wiese. Was ist es?',
+      a: 'LÖWENZAHN', r: [2, 1, 0, 0, 0],
+      ex: 'Der Löwe brüllt, der Zahn beißt: zusammen ergibt das den Löwenzahn.' },
+    { id: 'w-geier', fam: 'w-anfang-streichen', cat: 'Sprache', type: 'text',
+      q: 'Streiche bei einem Greifvogel den ersten Buchstaben – übrig bleibt etwas, das viele zum Frühstück essen. Welcher Vogel ist es?',
+      a: 'GEIER', r: [2, 1, 0, 1, 0],
+      ex: 'GEIER ohne G ergibt EIER.' },
+
+    // ===== schwer =====
+    { id: 'w-q-kuh', fam: 'w-buchstabe-klingt', cat: 'Sprache', type: 'text', letters: true,
+      q: 'Welcher Buchstabe des Alphabets klingt, wenn man ihn laut ausspricht, wie ein Tier?',
+      a: 'Q', r: [1, 3, 1, 0, 0],
+      ex: 'Das Q spricht man „Ku“ – genau wie die Kuh.' },
+    { id: 'w-saite', fam: 'w-homophon-paar', cat: 'Sprache', type: 'choice',
+      q: 'Bei welchem Paar klingen beide Wörter <b>genau</b> gleich?',
+      opts: ['Wal – Wall', 'Saite – Seite', 'Hüte – Hütte', 'Bett – Beet'], a: 1, r: [2, 2, 2, 0, 0],
+      ex: 'Saite und Seite spricht man identisch. Bei Wal/Wall, Hüte/Hütte und Bett/Beet ist der Vokal einmal lang und einmal kurz.' },
+    { id: 'w-endgueltig', fam: 'w-duden-end-ent', cat: 'Sprache', type: 'choice',
+      q: 'Welche Schreibweise ist richtig?',
+      opts: ['entgültig', 'endgültig', 'entgültich', 'endgültich'], a: 1, r: [1, 1, 2, 0, 1],
+      ex: 'Richtig ist endgültig – es kommt von „Ende“. Die Vorsilbe „ent-“ (wie in entdecken) passt hier nicht.' },
+    { id: 'w-widerspruch', fam: 'w-wider-wieder', cat: 'Sprache', type: 'text',
+      q: 'Ein Wort in diesem Satz ist falsch geschrieben. Schreibe es richtig: „Die Zeugen machten wiedersprüchliche Angaben.“',
+      a: 'WIDERSPRÜCHLICHE', accept: ['WIDERSPRÜCHLICH'], r: [2, 1, 2, 0, 1],
+      ex: '„wider“ (ohne e) heißt „gegen“ – es geht um Aussagen, die sich widersprechen, nicht um eine Wiederholung.' },
+    { id: 'w-muttern', fam: 'w-zwei-mehrzahlen', cat: 'Sprache', type: 'text',
+      q: 'Bilde die Mehrzahl von „Mutter“ – gemeint ist aber das Gegenstück zur Schraube.',
+      a: 'MUTTERN', accept: ['SCHRAUBENMUTTERN'], r: [1, 2, 2, 0, 0],
+      ex: 'Frauen mit Kindern sind in der Mehrzahl Mütter – das Gegenstück zur Schraube heißt in der Mehrzahl Muttern (ohne Umlaut).' },
+    { id: 'w-band', fam: 'w-artikel-bedeutung', cat: 'Sprache', type: 'text',
+      q: 'Mit „der“ ist es ein Buch einer Reihe, mit „die“ eine Musikgruppe, mit „das“ ein schmaler Stoffstreifen. Welches Wort ist es?',
+      a: 'BAND', r: [2, 2, 1, 0, 0],
+      ex: 'Der Band (Buch), die Band (Musikgruppe), das Band (Stoffstreifen).' },
+    { id: 'w-bremse', fam: 'w-insekt-im-auto', cat: 'Sprache', type: 'text',
+      q: 'Welches Insekt ist in jedes Auto eingebaut?',
+      a: 'BREMSE', r: [2, 2, 1, 0, 0],
+      ex: 'Die Bremse ist eine stechende Fliege – und das, womit man das Auto anhält.' },
+    { id: 'w-fluegel', fam: 'w-teekessel-drei', cat: 'Sprache', type: 'text',
+      q: 'Welches Wort bezeichnet ein Musikinstrument, einen Teil eines Vogels und den Seitenteil eines großen Gebäudes?',
+      a: 'FLÜGEL', r: [2, 2, 0, 1, 0],
+      ex: 'Der Konzertflügel, der Vogelflügel und der Gebäudeflügel (z. B. Ostflügel eines Schlosses).' },
+    { id: 'w-montage', fam: 'w-aussprache-wechsel', cat: 'Sprache', type: 'text',
+      q: 'Welches Wort bedeutet je nach Aussprache „mehrere bestimmte Wochentage“ oder „der Zusammenbau von etwas“?',
+      a: 'MONTAGE', r: [2, 2, 1, 0, 0],
+      ex: 'Mon-ta-ge sind die Wochentage, die Mon-ta-sche ist der Aufbau, etwa einer Küche.' },
+    { id: 'w-gastanker', fam: 'w-kompositum-zweideutig', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort lässt sich an zwei verschiedenen Stellen in zwei sinnvolle Wörter trennen?',
+      opts: ['Gastanker', 'Haustür', 'Regenschirm', 'Bahnhof'], a: 0, r: [2, 2, 1, 1, 0],
+      ex: 'GAS-TANKER (ein Schiff) oder GAST-ANKER. Die anderen Wörter lassen nur eine Trennung zu.' },
+    { id: 'w-rueckstand', fam: 'w-rebus-text', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort ist gemeint?' + seq(['D', 'N', 'A', 'T', 'S']),
+      opts: ['Abstand', 'Rückstand', 'Bestand', 'Zustand'], a: 1, r: [2, 2, 1, 0, 0],
+      ex: 'Dort steht STAND – rückwärts geschrieben. Also: Rückstand.' },
+    { id: 'w-telestichon', fam: 'w-satz-buchstaben-versteck', cat: 'Sprache', type: 'text',
+      q: 'Welches Tier versteckt sich in diesem Satz? „Heute kommen nicht alle.“',
+      a: 'ENTE', r: [2, 4, 1, 0, 0],
+      ex: 'Die <b>letzten</b> Buchstaben der vier Wörter ergeben E-N-T-E. Zusammenhängend und in den Anfangsbuchstaben steckt kein Tier.' },
+    { id: 'w-unentwegt', fam: 'w-un-ohne-gegenstueck', cat: 'Sprache', type: 'choice',
+      q: 'Bei welchem Wort ergibt sich ohne die Vorsilbe „un“ kein echtes Wort?',
+      opts: ['unentwegt', 'unfreundlich', 'unklar', 'unsicher'], a: 0, r: [2, 2, 1, 0, 1],
+      ex: 'Freundlich, klar und sicher gibt es – „entwegt“ gibt es nicht.' },
+    { id: 'w-farbe-tausch', fam: 'w-ein-buchstabe-farbe', cat: 'Sprache', type: 'choice',
+      q: 'Ändere in jedem Wort genau einen Buchstaben, sodass eine Farbe entsteht. Bei welchem Wort klappt das <b>nicht</b>?',
+      opts: ['GELD', 'ROST', 'BRAUT', 'BROT'], a: 3, r: [2, 2, 2, 1, 0],
+      ex: 'GELD → GELB, ROST → ROSA, BRAUT → BRAUN. Aus BROT wird ROT nur durch Streichen, nicht durch Ändern.' },
+    { id: 'w-gotteshaus', fam: 'w-wortkette-kreis', cat: 'Sprache', type: 'text',
+      q: 'Jedes Wort beginnt mit dem Ende des vorigen, und die Kette schließt sich wieder bei HAUSTÜR. Welches Wort fehlt?' + seq(['HAUSTÜR', 'TÜRSCHLOSS', 'SCHLOSSHERR', 'HERRGOTT', '?']),
+      a: 'GOTTESHAUS', r: [2, 2, 1, 1, 0],
+      ex: 'Das fehlende Wort muss mit GOTT beginnen und mit HAUS enden: Gotteshaus – danach geht es mit Haustür weiter.' },
+    { id: 'w-abdecken', fam: 'w-wort-eigenes-gegenteil', cat: 'Sprache', type: 'text',
+      q: 'Welches Verb bedeutet beim Gemüsebeet „etwas zudecken“ – beim Esstisch nach dem Essen aber genau das Gegenteil, nämlich „alles wegräumen“?',
+      a: 'ABDECKEN', r: [2, 3, 1, 0, 1],
+      ex: 'Man deckt ein Beet mit Folie ab (zudecken) – und man deckt den Tisch ab (Geschirr wegräumen, freimachen).' },
+    { id: 'w-hai', fam: 'w-tier-rueckwaerts-laut', cat: 'Sprache', type: 'text',
+      q: 'Welches Tier ergibt rückwärts gelesen das Geräusch, das ein Esel macht?',
+      a: 'HAI', r: [2, 2, 1, 0, 0],
+      ex: 'HAI rückwärts ist IAH.' },
+    { id: 'w-gefangene', fam: 'w-grossschreibung-sinn', cat: 'Sprache', type: 'text',
+      q: 'In „der gefangene floh“ ist alles kleingeschrieben. Welches Wort musst du großschreiben, damit ein Mensch entkommen ist?',
+      a: 'GEFANGENE', r: [2, 2, 2, 0, 0],
+      ex: '„Der Gefangene floh“ – ein Häftling ist entwischt. Schreibt man dagegen „Floh“ groß, ist ein gefangenes Insekt gemeint.' },
+    { id: 'w-alle-vokale', fam: 'w-fuenf-vokale', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort enthält alle fünf Vokale A, E, I, O und U?',
+      opts: ['Daumenkino', 'Bauernopfer', 'Zitronenkuchen', 'Geburtstagskind'], a: 0, r: [1, 1, 1, 2, 0],
+      ex: 'DAUMENKINO hat A, U, E, I und O. Bauernopfer fehlt das I, Zitronenkuchen das A, Geburtstagskind das O.' },
+    { id: 'w-satz-tier', fam: 'w-versteckt-ueber-grenzen', cat: 'Sprache', type: 'choice',
+      q: 'In drei Sätzen versteckt sich – über Wortgrenzen hinweg – ein Tier. In welchem nicht?',
+      opts: ['Am Abend spielt Ella mal Klavier.', 'Der Bäcker ehrt seine Kunden.', 'Ich traf Ruth und ihre Schwester.', 'Mein Onkel wohnt am Rand der Stadt.'], a: 3, r: [2, 2, 1, 1, 0],
+      ex: 'Ella mal → LAMA, Bäcker ehrt → REH, Ruth und → HUND. Im Satz über den Onkel steckt kein Tier.' },
+    { id: 'w-umfahren', fam: 'w-betonung', cat: 'Sprache', type: 'choice',
+      q: 'Welches Wort kann je nach Betonung zwei gegensätzliche Dinge bedeuten?',
+      opts: ['umfahren', 'abfahren', 'losfahren', 'mitfahren'], a: 0, r: [2, 3, 1, 0, 1],
+      ex: 'UMfahren heißt umstoßen, umFAHREN heißt drumherum fahren, um es gerade nicht zu treffen.' },
+    { id: 'w-darm', fam: 'w-koerperteil-davor', cat: 'Sprache', type: 'text',
+      q: 'Setze vor einen Körperteil einen einzigen Buchstaben – und es entsteht ein anderer Körperteil. Welcher Körperteil entsteht?',
+      a: 'DARM', r: [2, 2, 0, 1, 0],
+      ex: 'Aus ARM wird mit einem D davor der DARM.' },
+    { id: 'w-krapfen', fam: 'w-nachbarn-tauschen', cat: 'Sprache', type: 'text',
+      q: 'Vertausche in einem Süßwasserfisch zwei nebeneinanderstehende Buchstaben – und es entsteht ein Gebäck. Welches Gebäck?',
+      a: 'KRAPFEN', r: [2, 2, 1, 1, 0],
+      ex: 'KARPFEN: A und R tauschen die Plätze – heraus kommt KRAPFEN.' },
+    { id: 'w-aufheben', fam: 'w-verb-drei-bedeutungen', cat: 'Sprache', type: 'text',
+      q: 'Welches Verb kann bedeuten: etwas vom Boden nehmen, etwas aufbewahren – und ein Verbot abschaffen?',
+      a: 'AUFHEBEN', r: [2, 2, 1, 0, 1],
+      ex: 'Man hebt einen Stift auf, man hebt Briefe auf, und man hebt ein Gesetz auf.' },
+    { id: 'w-lid', fam: 'w-homophon-koerper', cat: 'Sprache', type: 'text',
+      q: 'Welcher Körperteil klingt ausgesprochen genauso wie etwas, das man singt?',
+      a: 'LID', accept: ['AUGENLID'], r: [2, 2, 2, 0, 0],
+      ex: 'Das Lid (am Auge) klingt genau wie das Lied – geschrieben wird es ohne e.' },
+    { id: 'w-doppeldecker', fam: 'w-rebus-text', cat: 'Sprache', type: 'text',
+      q: 'Welches Wort ist gemeint?' + seq(['DECKER', 'DECKER']),
+      a: 'DOPPELDECKER', accept: ['ZWEIDECKER'], r: [2, 3, 0, 0, 0],
+      ex: 'Zweimal DECKER – also doppelt: ein Doppeldecker, wie der Bus oder das Flugzeug.' },
+
+    // ===== sehr schwer =====
+    { id: 'w-modern', fam: 'w-betonung', cat: 'Sprache', type: 'text',
+      q: 'Welches Wort bedeutet je nach Betonung „zeitgemäß“ oder „langsam verfaulen“?',
+      a: 'MODERN', r: [2, 3, 1, 0, 1],
+      ex: 'moDERN heißt zeitgemäß, MOdern heißt vermodern, also verrotten.' },
+    { id: 'w-lehrer', fam: 'w-steigerung-klang', cat: 'Sprache', type: 'text',
+      q: 'Welcher Beruf klingt ausgesprochen genauso wie die Steigerung von „leer“?',
+      a: 'LEHRER', r: [2, 3, 1, 0, 0],
+      ex: 'leer – leerer – am leersten. „Leerer“ klingt genau wie „Lehrer“.' },
+    { id: 'w-schweinehund', fam: 'w-zwei-tiere-wort', cat: 'Sprache', type: 'text',
+      q: 'Welches Wort setzt sich aus zwei Tieren zusammen und bezeichnet die Bequemlichkeit, die man überwinden muss, bevor man zum Sport geht?',
+      a: 'SCHWEINEHUND', contains: ['SCHWEINEHUND'], r: [2, 2, 0, 0, 0],
+      ex: 'Schwein + Hund: der „innere Schweinehund“.' },
+    { id: 'w-ton', fam: 'w-bruecke-rueckwaerts', cat: 'Sprache', type: 'text',
+      q: 'Gesucht ist ein Wort, das vor LEITER passt – und rückwärts gelesen vor AUSGANG.',
+      a: 'TON', r: [3, 2, 1, 1, 0],
+      ex: 'TONLEITER – und TON rückwärts ist NOT: NOTAUSGANG.' },
+    { id: 'w-blumentopferde', fam: 'w-kompositum-zweideutig', cat: 'Sprache', type: 'text',
+      q: 'Lies dieses Wort an einer anderen Stelle getrennt. Welche Tiere stecken darin?' + seq(['BLUMENTOPFERDE']),
+      a: 'PFERDE', accept: ['PFERD'], r: [2, 2, 0, 0, 0],
+      ex: 'Statt BLUMENTOPF-ERDE liest man BLUMENTO-PFERDE.' },
+    { id: 'w-untiefe', fam: 'w-wort-eigenes-gegenteil', cat: 'Sprache', type: 'text',
+      q: 'Welches Wort kann laut Duden sowohl eine besonders flache als auch eine besonders tiefe Stelle im Wasser bezeichnen?',
+      a: 'UNTIEFE', accept: ['UNTIEFEN'], r: [2, 3, 2, 0, 1],
+      ex: 'Untiefe heißt einerseits seichte Stelle, andererseits auch große Tiefe (das „un-“ verstärkt dann wie in „Unmenge“).' },
+    { id: 'w-status', fam: 'w-fremdwort-mehrzahl', cat: 'Sprache', type: 'text',
+      q: 'Was ist laut Duden die Mehrzahl von „der Status“?',
+      a: 'STATUS', r: [1, 3, 3, 0, 1],
+      ex: 'Die Mehrzahl lautet ebenfalls „die Status“ (mit lang gesprochenem u). „Stati“ und „Statusse“ sind falsch.' },
+    { id: 'w-akrostichon', fam: 'w-satz-buchstaben-versteck', cat: 'Sprache', type: 'text',
+      q: 'Welches Tier versteckt sich in diesem Satz? „Katrin aß täglich zwei Eier.“',
+      a: 'KATZE', r: [2, 3, 2, 0, 0],
+      ex: 'Die Anfangsbuchstaben der fünf Wörter ergeben K-A-T-Z-E. Zusammenhängend steckt kein Tier im Satz.' },
+    { id: 'w-praktikum', fam: 'w-mehrzahl-kuerzer', cat: 'Sprache', type: 'choice',
+      q: 'Bei welchem Wort hat die Mehrzahl <b>weniger</b> Buchstaben als die Einzahl?',
+      opts: ['Praktikum', 'Thema', 'Firma', 'Datum'], a: 0, r: [2, 2, 1, 1, 1],
+      ex: 'Praktikum → Praktika (ein Buchstabe weniger). Thema → Themen und Firma → Firmen werden länger, Datum → Daten bleibt gleich lang.' },
   ]);
 })();
 
