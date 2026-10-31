@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ein Prozent</title>
+<meta name="description" content="Das Denk-Quiz: 19 Fragen von 90 % bis 1 % – gegen 99 Mitspieler.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0a0d24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ein Prozent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="floor"></div></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<main id="app">
+  <!-- ========== Start ========== -->
+  <section id="home" class="screen active">
+    <div class="home-inner">
+      <div class="logo" aria-label="Ein Prozent">
+        <svg viewBox="0 0 200 200" class="logo-ring" aria-hidden="true">
+          <circle cx="100" cy="100" r="88" class="ring-bg"/>
+          <circle cx="100" cy="100" r="88" class="ring-fg"/>
+        </svg>
+        <div class="logo-text"><span class="one">1</span><span class="pct">%</span></div>
+      </div>
+      <h1 class="title">Ein Prozent</h1>
+      <p class="tagline">19 Fragen. 99 Gegner. Von 90 % bis zur Frage, die fast niemand löst.</p>
+      <button class="home-team" id="home-team" data-action="team" aria-label="Moderation wählen"></button>
+      <div class="menu">
+        <button class="btn primary big" data-action="show"><span>Die Show</span><small>Gegen 99 Mitspieler um den Topf</small></button>
+        <button class="btn big" data-action="daily"><span>Tagesshow</span><small id="daily-sub">Heute für alle dieselben Fragen</small></button>
+        <button class="btn big" data-action="party-setup"><span>Party</span><small>2–6 Personen an einem Gerät</small></button>
+        <button class="btn big" data-action="training"><span>Training</span><small>Ohne Druck, mit Erklärungen</small></button>
+      </div>
+      <nav class="sub-menu">
+        <button class="link" data-action="howto">So geht's</button>
+        <button class="link" data-action="stats">Statistik</button>
+        <button class="link" data-action="settings">Einstellungen</button>
+      </nav>
+      <p id="install-hint" class="install-hint" hidden></p>
+    </div>
+  </section>
+
+  <!-- ========== Party-Setup ========== -->
+  <section id="party-setup" class="screen">
+    <div class="panel narrow">
+      <h2>Party</h2>
+      <p class="muted">Jede Person antwortet verdeckt – Gerät nach jeder Antwort weitergeben.</p>
+      <div id="party-names"></div>
+      <div class="row">
+        <button class="btn" data-action="party-add">+ Person</button>
+        <button class="btn primary" data-action="party-start">Los geht's</button>
+      </div>
+      <button class="link back" data-action="home">Zurück</button>
+    </div>
+  </section>
+
+  <!-- ========== Training-Setup ========== -->
+  <section id="training-setup" class="screen">
+    <div class="panel narrow">
+      <h2>Training</h2>
+      <p class="muted">Wähle die Schwierigkeit. Es gibt keine Zeit und kein Ausscheiden.</p>
+      <div class="choice-list" id="training-bands"></div>
+      <button class="link back" data-action="home">Zurück</button>
+    </div>
+  </section>
+
+  <!-- ========== Spiel ========== -->
+  <section id="game" class="screen">
+    <header class="hud">
+      <button class="icon-btn" data-action="quit" aria-label="Spiel beenden">✕</button>
+      <div class="ladder" id="ladder" aria-label="Fortschritt"></div>
+      <div class="hud-stats">
+        <div class="stat"><b id="alive-n">100</b><small id="alive-l">im Spiel</small></div>
+        <div class="stat pot"><b id="pot-n">0 €</b><small>Jackpot</small></div>
+      </div>
+    </header>
+
+    <div class="stage">
+      <div class="q-col">
+        <div id="booth-slot"></div>
+        <div class="q-head">
+          <div class="tier-badge" id="tier-badge">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="45" class="t-bg"/><circle cx="50" cy="50" r="45" class="t-fg" id="timer-ring"/></svg>
+            <div class="tier-val"><b id="tier-n">90</b><span>%</span></div>
+          </div>
+          <div class="q-meta">
+            <div class="q-kicker" id="q-kicker">Frage 1 von 19</div>
+            <div class="q-sub" id="q-sub">So viele lösen sie</div>
+          </div>
+          <div class="timer-num" id="timer-num" aria-live="off"></div>
+        </div>
+        <div class="lockbar" id="lockbar" hidden></div>
+        <div class="q-card" id="q-card">
+          <div class="q-text" id="q-text"></div>
+          <div class="q-visual" id="q-visual"></div>
+        </div>
+        <div class="answer-col">
+        <div class="answer" id="answer"></div>
+        <div class="actions">
+          <button class="btn ghost" id="btn-pass" data-action="pass" hidden>Joker <small>500 € · Frage überspringen</small></button>
+          <button class="btn primary lock" id="btn-lock" data-action="lock" disabled>Einloggen</button>
+        </div>
+        </div>
+      </div>
+      <aside class="side">
+        <div class="arena-wrap">
+          <div class="arena" id="arena" aria-hidden="true"></div>
+          <div class="ticker" id="ticker"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ========== Overlays ========== -->
+  <div class="stage-intro" id="stage-intro" hidden></div>
+  <div class="overlay" id="overlay" hidden>
+    <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</main>
+
+<script src="js/calib.js"></script>
+<script src="js/difficulty.js"></script>
+<script src="js/questions.js"></script>
+<script src="js/bank.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/host.js"></script>
+<script src="js/casts.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
