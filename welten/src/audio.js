@@ -82,11 +82,15 @@ export class Audio {
   }
 
   // ---------- Musik: Spieluhr in G-Dur, 104 bpm, mit Spannungsschicht ----------
-  startMusic() {
+  // Themen: 'uhrwerk' = Spieluhr mit Uhrwerk-Klicken, 'wald' = Flöte über Zupfbass, mit Vogelrufen.
+  startMusic(theme = 'uhrwerk') {
     if (!this.ctx || this.music) return;
-    const ctx = this.ctx, bpm = 104, beat = 60 / bpm;
-    const melody = [67, 71, 74, 79, 78, 74, 71, 74, 72, 76, 79, 84, 83, 79, 76, 79, 71, 74, 79, 83, 81, 78, 74, 78, 72, 76, 81, 79, 78, 74, 71, 67];
-    const bass = [43, 43, 48, 48, 47, 47, 50, 50];
+    const wald = theme === 'wald';
+    const ctx = this.ctx, bpm = wald ? 92 : 104, beat = 60 / bpm;
+    const melody = wald
+      ? [74, 0, 76, 78, 81, 0, 78, 76, 74, 76, 78, 0, 71, 0, 69, 71, 74, 0, 76, 78, 81, 83, 81, 78, 76, 0, 74, 71, 69, 0, 71, 0]
+      : [67, 71, 74, 79, 78, 74, 71, 74, 72, 76, 79, 84, 83, 79, 76, 79, 71, 74, 79, 83, 81, 78, 74, 78, 72, 76, 81, 79, 78, 74, 71, 67];
+    const bass = wald ? [50, 50, 47, 47, 43, 43, 45, 45] : [43, 43, 48, 48, 47, 47, 50, 50];
     let step = 0, next = ctx.currentTime + 0.1;
     const note = (midi, t, dur, vol, type = 'triangle') => {
       const f = 440 * Math.pow(2, (midi - 69) / 12);
@@ -99,13 +103,28 @@ export class Audio {
         g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(vol * 0.25, t + 0.005); g2.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.6);
         o2.connect(g2); g2.connect(this.musicBus); o2.start(t); o2.stop(t + dur); }
     };
+    // Flöte: Sinus mit sanftem Einschwingen und Vibrato
+    const flute = (midi, t, dur, vol) => {
+      const f = 440 * Math.pow(2, (midi - 69) / 12);
+      const o = ctx.createOscillator(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = f; lfo.frequency.value = 5.2; lg.gain.value = f * 0.012; lfo.connect(lg); lg.connect(o.frequency);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.06); g.gain.setTargetAtTime(0.0001, t + dur * 0.7, dur * 0.25);
+      o.connect(g); g.connect(this.musicBus); o.start(t); lfo.start(t); o.stop(t + dur * 1.6); lfo.stop(t + dur * 1.6);
+    };
+    // Vogelruf: zwei schnelle Pfeiftöne
+    const bird = t => { for (let i = 0; i < 2; i++) { const o = ctx.createOscillator(), g = ctx.createGain(), s = t + i * 0.13, f0 = 2200 + Math.random() * 900;
+      o.type = 'sine'; o.frequency.setValueAtTime(f0, s); o.frequency.exponentialRampToValueAtTime(f0 * 1.45, s + 0.08);
+      g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(0.05, s + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, s + 0.1);
+      o.connect(g); g.connect(this.musicBus); o.start(s); o.stop(s + 0.12); } };
     const tick = () => {
       while (next < ctx.currentTime + 0.25) {
         const half = beat / 2;
-        note(melody[step % melody.length], next, 0.6, 0.22);
+        const m = melody[step % melody.length];
+        if (wald) { if (m) flute(m, next, beat * 0.9, 0.16); if (step % 2 === 0) note(bass[(step / 4 | 0) % bass.length] + (step % 4 ? 7 : 0), next, 0.35, 0.16); if (Math.random() < 0.04) bird(next); }
+        else note(m, next, 0.6, 0.22);
         if (step % 4 === 0) note(bass[(step / 4 | 0) % bass.length], next, beat * 1.8, 0.18, 'sine');
         // Uhrwerk-Klicken
-        if (step % 2 === 0) { const b = this.buf.tick_002; if (b) { const s = ctx.createBufferSource(); s.buffer = b; const g = ctx.createGain(); g.gain.value = 0.25 + this.tension * 0.4; s.connect(g); g.connect(this.musicBus); s.start(next); } }
+        if (!wald && step % 2 === 0) { const b = this.buf.tick_002; if (b) { const s = ctx.createBufferSource(); s.buffer = b; const g = ctx.createGain(); g.gain.value = 0.25 + this.tension * 0.4; s.connect(g); g.connect(this.musicBus); s.start(next); } }
         // Spannung: tiefer Puls, der mit tension lauter und schneller wird
         if (this.tension > 0.05 && step % (this.tension > 0.6 ? 1 : 2) === 0) note(36, next, 0.18, 0.12 + this.tension * 0.25, 'sine');
         next += half; step++;

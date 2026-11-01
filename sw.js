@@ -1,5 +1,5 @@
 // Offline-Cache: immer zuerst das Netz; ohne Verbindung die zuletzt geladenen Dateien.
-const VERSION = 'ein-prozent-v10';
+const VERSION = 'ein-prozent-v11';
 const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap';
 const CORE = ['./', 'index.html', 'css/style.css', 'js/calib.js', 'js/difficulty.js', 'js/questions.js', 'js/bank.js', 'js/audio.js', 'js/host.js', 'js/casts.js', 'js/game.js',
   'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];

@@ -10,14 +10,14 @@ export const COLORS = ['#ffc940', '#ff7ab6', '#56e4ff', '#2fe39f', '#c39bff', '#
 
 export class Multi {
   constructor(handlers) {
-    this.h = handlers;           // { onStart, onPlayers, onEvent, onWinner, onHostLost, toast }
+    this.h = handlers;           // { onStart, onChapter, onPlayers, onEvent, onWinner, onHostLost, toast }
     this.role = 'solo'; this.id = 'me'; this.players = {}; this.winner = null;
   }
   get active() { return this.role !== 'solo'; }
 
   // ---------- Lobby ----------
-  async host(name) {
-    this.role = 'host';
+  async host(name, chapter) {
+    this.role = 'host'; this.chapter = chapter;
     this.lobby(`<div class="lb-wait">Raum wird geöffnet …</div>`);
     try { this.room = await createRoom({ name, joinUrl: c => location.origin + location.pathname + '?join=' + c }); }
     catch (e) { return this.fail(e); }
@@ -64,10 +64,10 @@ export class Multi {
         <p>Du bist drin! Warte, bis der Gastgeber startet.</p><ul class="lb-list">${list}</ul><div class="lb-wait">⏳</div>`);
     }
   }
-  sync() { this.room.setState({ code: this.room.code, players: this.players }, { immediate: true }); }
+  sync() { this.room.setState({ code: this.room.code, chapter: this.chapter, players: this.players }, { immediate: true }); }
   start() {
     this.started = true; this.room.lock(); this.room.setState({ phase: 'play', startAt: Date.now() + 800 }, { immediate: true });
-    this.room.broadcast({ type: 'start' }); $('#lobby').hidden = true; this.h.onStart(this.slots());
+    this.room.broadcast({ type: 'start' }); $('#lobby').hidden = true; this.h.onStart(this.slots(), this.chapter);
   }
   slots() { const s = this.state?.players || this.players; return Object.fromEntries(Object.entries(s).filter(([, p]) => p && p.name).map(([id, p]) => [id, p])); }
 
@@ -93,7 +93,8 @@ export class Multi {
   }
   onState(state) {
     this.state = state;
-    if (!this.started) { if (state.phase === 'play') { this.started = true; $('#lobby').hidden = true; this.h.onStart(this.slots()); } else this.renderLobby(); }
+    if (state.chapter && state.chapter !== this.chapter) { this.chapter = state.chapter; if (!this.started) this.h.onChapter(state.chapter); }
+    if (!this.started) { if (state.phase === 'play') { this.started = true; $('#lobby').hidden = true; this.h.onStart(this.slots(), this.chapter); } else this.renderLobby(); }
     this.h.onPlayers(this.slots());
     if (state.winner && !this.winner) { this.winner = state.winner; this.h.onWinner(state.winner); }
   }
