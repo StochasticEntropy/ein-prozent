@@ -69,11 +69,23 @@
       const steps = spec.steps || [];
       dots.innerHTML = steps.map(() => '<i></i>').join('') + '<i></i>';
       let i = -1, done = false;
-      // Tafel so scrollen, dass die neueste Zeile ganz zu sehen ist und oben keine Zeile halb abgeschnitten wird
+      // Tafel so scrollen, dass die neueste Zeile ganz zu sehen ist und oben keine Zeile halb abgeschnitten wird.
+      // Der Browser deckelt scrollTop bei scrollHeight − clientHeight; liegt der Zeilenanfang tiefer, gibt unten
+      // zusätzlicher Leerraum den nötigen Platz – sonst bliebe die Zeile darüber halb stehen.
+      // Gemessen wird am Layout (offsetTop/offsetHeight), nicht an scrollHeight: das zählt die Einflug-Animationen mit
+      // (Stempel startet 3-fach vergrößert) und ergäbe ein viel zu hohes Ziel.
       const fit = () => requestAnimationFrame(() => {
-        const lines = [...board.children], pad = parseFloat(getComputedStyle(board).paddingTop) || 0;
-        const first = lines.find(l => board.scrollHeight - (l.offsetTop - pad) <= board.clientHeight + 1) || lines[lines.length - 1];
-        board.scrollTop = first ? Math.max(0, first.offsetTop - pad) : 0;
+        board.style.paddingBottom = '';
+        // oben bleibt genau der Zeilenabstand frei – mehr, und die Zeile darüber ragte noch hinein
+        const lines = [...board.children], cs = getComputedStyle(board), gap = parseFloat(cs.rowGap) || 0, ch = board.clientHeight;
+        if (!lines.length) return;
+        const last = lines[lines.length - 1], end = last.offsetTop + last.offsetHeight + (parseFloat(cs.paddingBottom) || 0);
+        const first = lines.find((l, k) => end - (k ? l.offsetTop - gap : 0) <= ch + 1) || last;
+        // passt selbst die letzte Zeile nicht samt Abstand, schließt sie unten bündig ab (ist sie höher als die Tafel: oben bündig)
+        const slack = Math.min(gap, Math.max(0, ch - first.offsetHeight));
+        const top = first !== lines[0] ? Math.max(0, first.offsetTop - slack) : 0;
+        if (top + ch > end) board.style.paddingBottom = `${(parseFloat(cs.paddingBottom) || 0) + top + ch - end}px`;
+        board.scrollTop = top;
       });
       const finish = how => { if (done) return; done = true; removeEventListener('keydown', key); el.classList.remove('show'); document.body.classList.remove('explaining'); setTimeout(() => el.remove(), 350); resolve(how); };
       const step = () => {
