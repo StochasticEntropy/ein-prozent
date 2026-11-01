@@ -38,7 +38,11 @@
       if (s.getAttribute('stroke-dasharray') || s.style.strokeDasharray) { s.style.opacity = '0'; s.style.animation = `exFade .5s ${0.08 * (i % 12)}s forwards`; return; } // gestrichelt bleibt gestrichelt
       s.setAttribute('pathLength', '1'); s.style.strokeDasharray = '1'; s.style.strokeDashoffset = '1';
       s.style.animation = `exDraw .9s ${0.08 * (i % 12)}s ease-out forwards`;
-      if (s.getAttribute('fill') && s.getAttribute('fill') !== 'none') { s.style.fillOpacity = '0'; s.style.animation += `, exFill .4s ${0.5 + 0.08 * (i % 12)}s forwards`; }
+      // Flächen einblenden – bis zu ihrer eigenen Deckkraft (halbtransparente Markierungen bleiben halbtransparent)
+      if (s.getAttribute('fill') && s.getAttribute('fill') !== 'none' && s.animate) {
+        const to = parseFloat(s.getAttribute('fill-opacity') ?? '1');
+        s.animate([{ fillOpacity: 0 }, { fillOpacity: isNaN(to) ? 1 : to }], { duration: 400, delay: 500 + 80 * (i % 12), fill: 'both' });
+      }
     });
   }
 
@@ -65,6 +69,12 @@
       const steps = spec.steps || [];
       dots.innerHTML = steps.map(() => '<i></i>').join('') + '<i></i>';
       let i = -1, done = false;
+      // Tafel so scrollen, dass die neueste Zeile ganz zu sehen ist und oben keine Zeile halb abgeschnitten wird
+      const fit = () => requestAnimationFrame(() => {
+        const lines = [...board.children], pad = parseFloat(getComputedStyle(board).paddingTop) || 0;
+        const first = lines.find(l => board.scrollHeight - (l.offsetTop - pad) <= board.clientHeight + 1) || lines[lines.length - 1];
+        board.scrollTop = first ? Math.max(0, first.offsetTop - pad) : 0;
+      });
       const finish = how => { if (done) return; done = true; removeEventListener('keydown', key); el.classList.remove('show'); document.body.classList.remove('explaining'); setTimeout(() => el.remove(), 350); resolve(how); };
       const step = () => {
         i++; if (i > 0 && onStep) try { onStep(i); } catch { /* egal */ }
@@ -83,7 +93,7 @@
             line.innerHTML = (s.big ? `<div class="ex-big">${esc(s.big)}</div>` : '') + (s.board ? `<div class="ex-chalk">${s.board}</div>` : '') + (s.svg ? `<div class="ex-svg">${s.svg}</div>` : '');
             if (style === 'lupe' && s.svg) line.querySelector('.ex-svg').remove();
             board.appendChild(line); line.querySelectorAll('.ex-svg').forEach(animateSvg);
-            board.scrollTop = board.scrollHeight;
+            fit();
           }
           if (style === 'lupe') { // Lupe: eigene Skizze des Schritts oder wieder das Bild der Frage
             const img = el.querySelector('.ex-lens-img'), want = s.svg || q.svg || img.innerHTML; // ohne Fragebild: letzte Skizze bleibt stehen
@@ -95,7 +105,7 @@
           // Abschluss: Lösung + Merksatz
           const line = document.createElement('div'); line.className = 'ex-line ex-final';
           line.innerHTML = `<div class="ex-stamp">Lösung: <b>${esc(solution(q))}</b></div>${spec.merk ? `<div class="ex-merk">💡 ${esc(spec.merk)}</div>` : ''}`;
-          board.appendChild(line); board.scrollTop = board.scrollHeight;
+          board.appendChild(line); fit();
           next.textContent = 'Fertig ✓';
           el.querySelector('.ex-skip').hidden = true;
         } else finish('done');
