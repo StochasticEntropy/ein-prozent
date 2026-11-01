@@ -19,6 +19,7 @@ export default {
   models: ['block-grass-large', 'coin-gold', 'chest', ...['tree_oak', 'tree_detailed', 'tree_fat', 'tree_default', 'tree_tall', 'tree_cone', 'mushroom_redTall', 'mushroom_red',
     'mushroom_redGroup', 'mushroom_tanTall', 'lily_large', 'lily_small', 'log_large', 'stump_oldTall', 'stump_round', 'statue_ring', 'statue_obelisk', 'plant_bushLarge', 'plant_bush',
     'plant_bushDetailed', 'flower_redA', 'flower_yellowA', 'flower_purpleA', 'grass_large', 'rock_largeA', 'rock_tallB', 'sign'].map(N)],
+  cats: ['Sprache'], // Kategorien der Fragenbank, aus denen die Tore schöpfen
   lines: LINES, react: REACT, speakers: SPEAKERS,
   seq: { intro: ['ww_intro1', 'ww_intro2'], fly: 'ww_intro3', afterFly: ['ww_intro4'], land: 'ww_land1', multi: ['ww_multi1', 'ww_multi2'], solo: ['ww_flitz1', 'ww_flitz1b'],
     win: ['ww_sieg1', 'ww_sieg2', 'ww_sieg3'], lose: ['ww_niederlage1', 'ww_niederlage2'], out: 'ww_ausgeschieden' },

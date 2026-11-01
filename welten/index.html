@@ -12,8 +12,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="src/char.css">
+<link rel="stylesheet" href="../css/explain.css">
 <style>
   :root { --ink: #fdf8ff; --gold: #ffc940; --ok: #2fe39f; --bad: #ff4d6d; --panel: rgba(28, 18, 64, .78); --line: rgba(255, 255, 255, .18);
     --display: 'Bricolage Grotesque', system-ui, sans-serif; --font: 'Inter', system-ui, -apple-system, sans-serif; color-scheme: dark; }
@@ -31,12 +32,12 @@
   #load-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), #ff7ab6); transition: width .2s; }
 
   /* Titel */
-  #title { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 0 16px calc(env(safe-area-inset-bottom) + 6vh);
+  #title { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 4vh);
     background: linear-gradient(180deg, rgba(20, 12, 50, .1) 30%, rgba(20, 12, 50, .75)); text-align: center; transition: opacity .7s, transform .7s; }
-  .logo { font-family: var(--display); font-weight: 800; font-size: clamp(2.8rem, 9vw, 5.6rem); line-height: .95; letter-spacing: -.03em; margin: 0;
+  .logo { margin-top: auto; font-family: var(--display); font-weight: 800; font-size: clamp(2.2rem, min(9vw, 8vh), 5.6rem); line-height: .95; letter-spacing: -.03em; margin: 0;
     background: linear-gradient(180deg, #fff 20%, #ffe39a 60%, #ffb02e); -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 6px 0 rgba(60, 20, 90, .55)) drop-shadow(0 0 30px rgba(255, 201, 64, .35)); animation: logoIn 1.1s cubic-bezier(.2, 1.6, .4, 1) both; }
-  .chapter { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #ffd6f0; margin: 10px 0 22px; animation: rise .8s .3s both; }
+  .chapter { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #ffd6f0; margin: 8px 0 16px; animation: rise .8s .3s both; }
   @keyframes logoIn { from { transform: scale(.4) rotate(-6deg); opacity: 0; } }
   @keyframes rise { from { transform: translateY(20px); opacity: 0; } }
   .menu { display: grid; gap: 10px; width: min(380px, 100%); animation: rise .8s .5s both; }
@@ -133,16 +134,55 @@
   #end { position: fixed; inset: 0; z-index: 35; display: grid; place-items: center; padding: 16px; background: rgba(15, 8, 40, .55); backdrop-filter: blur(4px); }
   .end-card { width: min(420px, 100%); background: var(--panel); border: 1px solid var(--line); border-radius: 28px; padding: 24px; text-align: center; animation: logoIn .7s cubic-bezier(.2, 1.4, .4, 1); }
   .end-card h2 { font-family: var(--display); font-size: 2rem; margin: 0 0 6px; color: var(--gold); }
-  .end-btns { display: grid; gap: 10px; } .end-btns a { text-decoration: none; display: block; }
+  /* Studio: Rangliste auf der Bühne, Spielerchips am Rätsel, Steuerung auf dem Handy */
+  #board { position: fixed; top: calc(env(safe-area-inset-top) + 10px); right: 12px; z-index: 11; display: grid; gap: 6px; min-width: 190px; pointer-events: none; }
+  .bd-row { display: flex; align-items: center; gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; backdrop-filter: blur(8px); transition: transform .3s; }
+  .bd-rank { font-family: var(--display); font-weight: 800; opacity: .7; width: 1.2em; } .bd-row b { flex: 1; } .bd-pts { font-family: var(--display); font-weight: 800; color: var(--gold); }
+  .bd-row .lb-dot, .st-chip .lb-dot { width: 12px; height: 12px; flex: none; }
+  .r-card.stage { width: min(760px, 100%); } .r-card.stage .r-opt { cursor: default; }
+  .st-type { margin-top: 14px; padding: 14px; border-radius: 16px; background: #2b1b06; color: var(--gold); font-family: var(--display); font-weight: 800; font-size: 1.3rem; text-align: center; }
+  .st-type b { color: #fff; letter-spacing: .1em; }
+  .st-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .st-chip { color: #2b1b06; display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: rgba(43, 27, 6, .08); border: 2px solid rgba(43, 27, 6, .15); font-weight: 800; transition: background .2s, transform .2s; }
+  .st-chip i { font-style: normal; font-weight: 700; opacity: .8; }
+  .st-chip.in { background: #fff3cf; border-color: #e09a12; animation: rightPop .4s; }
+  .st-chip.ok { background: #c8f7df; border-color: #1fa86b; } .st-chip.bad { background: #ffd2da; border-color: #d62f52; }
+  .podium { list-style: none; padding: 0; margin: 14px 0 18px; display: grid; gap: 6px; text-align: left; }
+  .podium li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 14px; background: rgba(255, 255, 255, .08); }
+  .podium li b { flex: 1; } .podium li em { font-style: normal; font-family: var(--display); font-weight: 800; color: var(--gold); }
+  body.pad-mode #scene, body.pad-mode #title, body.pad-mode #talk, body.pad-mode #hud, body.pad-mode #hint, body.pad-mode #riddle { display: none !important; }
+  body.pad-mode { background: radial-gradient(circle at 50% 0%, #3b2a8a, #160f36 70%); }
+  #pad { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 12px) 14px calc(env(safe-area-inset-bottom) + 14px); overflow: auto; }
+  #pad-head { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; padding: 6px 4px 12px; } #pad-head b { flex: 1; } .pad-pts { font-family: var(--display); font-weight: 800; color: var(--gold); }
+  #pad-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+  .pad-card { opacity: 1; transform: none; width: 100%; max-height: none; }
+  .pad-msg { text-align: center; font-family: var(--display); font-weight: 800; font-size: 1.6rem; display: grid; gap: 8px; animation: logoIn .5s cubic-bezier(.2, 1.4, .4, 1); }
+  .pad-msg small { font: 600 1rem var(--font); opacity: .75; } .pad-big { font-size: 4.5rem; line-height: 1; }
+  .pad-msg.ok { color: var(--ok); } .pad-msg.bad { color: #ff8fa3; }
+  .podium.small { font: 600 1rem var(--font); color: var(--ink); }
+  .end-btns { display: grid; gap: 10px; } .end-card a.btn-go { display: block; text-decoration: none; } .end-btns a { text-decoration: none; display: block; }
   /* Kapitelwahl */
-  .chapters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: min(420px, 100%); margin: -8px 0 16px; animation: rise .8s .4s both; }
-  .ch-card { flex: 1 1 150px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 16px; border: 2px solid var(--line); background: rgba(20, 12, 50, .55); backdrop-filter: blur(8px); font-weight: 700; text-align: left; font-size: .92rem; }
+  .chapters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: min(560px, 100%); margin: -8px 0 16px; animation: rise .8s .4s both; }
+  .ch-card { flex: 1 1 120px; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 16px; border: 2px solid var(--line); background: rgba(20, 12, 50, .55); backdrop-filter: blur(8px); font-weight: 700; text-align: left; font-size: .92rem; }
   .ch-card b { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 10px; background: rgba(255, 255, 255, .12); font-family: var(--display); }
   .ch-card span { flex: 1; }
   .ch-card i { flex: none; width: 14px; height: 20px; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); background: rgba(255, 255, 255, .2); }
   .ch-card i.got { background: linear-gradient(180deg, #c9fbff, #29d8ff); filter: drop-shadow(0 0 6px #56e4ff); }
   .ch-card.on { border-color: var(--gold); background: rgba(255, 201, 64, .2); }
   .ch-card.on b { background: var(--gold); color: #2a1600; }
+  .zeit { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 6px; width: min(420px, 100%); margin: -6px 0 14px; font-size: .85rem; font-weight: 700; animation: rise .8s .45s both; }
+  .zeit span { opacity: .8; margin-right: 2px; }
+  .zt { border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; background: rgba(20, 12, 50, .55); font-weight: 700; font-size: .85rem; }
+  .zt.on { background: var(--gold); color: #2a1600; border-color: var(--gold); }
+  .figs { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; width: min(440px, 100%); margin: -4px 0 6px; animation: rise .8s .5s both; }
+  .fig { position: relative; width: 38px; height: 38px; padding: 2px; border-radius: 12px; border: 2px solid var(--line); background: rgba(20, 12, 50, .55); display: grid; place-items: center; }
+  .fig img { width: 100%; height: 100%; object-fit: contain; }
+  .fig.on { border-color: var(--gold); background: rgba(255, 201, 64, .25); transform: scale(1.1); }
+  .fig.locked img { filter: grayscale(1) brightness(.35); } .fig.locked i { position: absolute; bottom: -4px; right: -4px; font-style: normal; font-size: .6rem; background: #1b1440; border-radius: 8px; padding: 1px 3px; }
+  .sinn { font-size: .78rem; opacity: .8; margin-bottom: 12px; font-weight: 600; text-align: center; animation: rise .8s .55s both; }
+  .r-tip small { font-weight: 600; opacity: .75; }
+  .end-fig { display: flex; align-items: center; gap: 12px; text-align: left; background: rgba(255, 201, 64, .15); border: 1px solid var(--gold); border-radius: 16px; padding: 8px 12px; margin: -6px 0 16px; animation: logoIn .7s .3s both; }
+  .end-fig img { width: 60px; height: 60px; } .end-fig small { display: block; opacity: .8; }
   .ch-count { width: 100%; text-align: center; font-size: .8rem; opacity: .75; font-weight: 600; }
   /* Texteingabe */
   .r-input { margin-top: 12px; border: 3px solid #a8743f; border-radius: 16px; background: #fffdf6; padding: 10px 12px; transition: background .2s, border-color .2s; }
@@ -179,10 +219,14 @@
   <h1 class="logo">Die Rätsel&shy;welten</h1>
   <div class="chapter" id="chapter-name">Kapitel 1 · Die Uhrwerk-Insel</div>
   <div class="chapters" id="chapters"></div>
+  <div class="zeit" id="zeit"></div>
+  <div class="figs" id="figs"></div>
+  <div class="sinn">🪙 Münzen = Tipps bei schweren Fragen · 💎 jeder Kristall = eine neue Figur</div>
   <div class="menu">
     <input class="in" id="name" maxlength="14" placeholder="Dein Name" autocomplete="off">
     <button class="btn-go" id="btn-solo">Allein spielen <small>gegen Flitz</small></button>
     <button class="btn-alt" id="btn-host">Mehrspieler: Raum erstellen <small>2–6 Geräte, Code oder QR</small></button>
+    <button class="btn-alt" id="btn-studio">Studio-Modus: dieses Gerät ist die Bühne <small>alle antworten auf ihren Handys</small></button>
     <div class="join-row" id="join-row"><input class="in" id="code" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters"><button class="btn-alt" id="btn-join">Raum beitreten</button></div>
   </div>
 </div>
@@ -195,6 +239,8 @@
 
 <div id="talk"><div id="talk-face"></div><div class="talk-bubble"><div id="talk-name"></div><div id="talk-text"></div></div></div>
 <div id="riddle" hidden></div>
+<div id="board" hidden></div>
+<div id="pad" hidden><div id="pad-head"></div><div id="pad-body"></div></div>
 <div id="lobby" hidden></div>
 <div id="ticker"></div>
 <div id="end" hidden></div>
@@ -205,6 +251,8 @@
 <script src="../js/bank.js"></script>
 <script src="../js/host.js"></script>
 <script src="../js/casts.js"></script>
+<script src="../js/explain-data.js"></script>
+<script src="../js/explain.js"></script>
 <script type="module" src="src/main.js"></script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {});</script>
 </body>

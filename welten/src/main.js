@@ -11,7 +11,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { World } from './world.js';
 import { Audio } from './audio.js';
 import { REACT, SPEAKERS } from './script.js';
-import { Multi, AVATARS, COLORS } from './multi.js';
+import { Multi, AVATARS, COLORS, figModel } from './multi.js';
+import { createStudio } from './studio.js';
 import uhrwerk from './chapters/uhrwerk.js';
 import wortwald from './chapters/wortwald.js';
 import spiegel from './chapters/spiegel.js';
@@ -38,6 +39,45 @@ const progress = {
   win(id) { const p = this.get(); p[id] = true; try { localStorage.setItem('rw:kristalle', JSON.stringify(p)); } catch {} },
   count() { return Object.values(this.get()).filter(Boolean).length; },
 };
+
+// ---------- Spielfiguren: 2 frei, jeder geholte Kristall schaltet eine weitere frei ----------
+const FIGS = ['female-b', 'male-f', 'female-e', 'male-c', 'female-d', 'male-b', 'female-a', 'male-a', 'female-c', 'male-d', 'female-f', 'male-e'];
+const figs = {
+  open() { return Math.min(FIGS.length, 2 + progress.count()); },
+  get() { try { const f = localStorage.getItem('rw:figur'); const i = FIGS.indexOf(f); return i >= 0 && i < this.open() ? f : FIGS[0]; } catch { return FIGS[0]; } },
+  set(f) { try { localStorage.setItem('rw:figur', f); } catch {} },
+};
+
+// ---------- Bedenkzeit (pro Gerät einstellbar; 0 = ohne Limit). Textantworten bekommen das 1,5-Fache. ----------
+const zeit = {
+  opts: [30, 60, 90, 0],
+  get() { try { const v = +localStorage.getItem('rw:zeit'); return this.opts.includes(v) && localStorage.getItem('rw:zeit') != null ? v : 30; } catch { return 30; } },
+  set(v) { try { localStorage.setItem('rw:zeit', String(v)); } catch {} },
+  forQ(q, cap = Infinity) { const b = this.get(); return b ? b * (q.type === 'choice' ? 1 : 1.5) : cap; },
+};
+
+// ---------- Fragen pro Tor: passendes Thema + Schwierigkeitsband, ungesehene zuerst ----------
+// Jedes Gerät merkt sich gesehene Fragen. Ein Tor nimmt seine Lieblingsfragen (pool) plus alle Bank-Fragen aus den
+// Kategorien des Kapitels im Band des Tors; keine Frage und keine Fragen-Familie doppelt in einem Durchlauf.
+const BANDS = [[70, 90], [40, 65], [15, 39]];
+const seen = {
+  get() { try { return new Set(JSON.parse(localStorage.getItem('rw:gesehen') || '[]')); } catch { return new Set(); } },
+  add(id) { try { const s = [...this.get()].filter(x => x !== id); s.push(id); localStorage.setItem('rw:gesehen', JSON.stringify(s.slice(-600))); } catch {} },
+};
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+function buildPools() {
+  const was = seen.get(), used = new Set(), fams = new Set();
+  CH.gates.forEach((def, gi) => {
+    const [lo, hi] = BANDS[gi] || BANDS[2];
+    const cand = [...new Set([...def.pool, ...Object.values(BANK).filter(q => q.type !== 'number' && (CH.cats || []).includes(q.cat) && q.tier >= lo && q.tier <= hi).map(q => q.id)])]
+      .filter(id => BANK[id] && !used.has(id));
+    const fresh = shuffle(cand.filter(id => !was.has(id))), old = shuffle(cand.filter(id => was.has(id)));
+    const run = [];
+    for (const id of [...fresh, ...old]) { const f = BANK[id].fam || id; if (fams.has(f)) continue; fams.add(f); run.push(id); used.add(id); if (run.length >= 8) break; }
+    def.run = run.length ? run : def.pool;
+  });
+}
+const nextQ = (def, gate) => { const id = def.run[(gate.attempt = (gate.attempt ?? -1) + 1) % def.run.length]; seen.add(id); return BANK[id]; };
 
 // ---------- Antwort prüfen (wie im klassischen Spiel) ----------
 const norm = s => String(s).trim().toUpperCase().replace(/Ä/g, 'AE').replace(/Ö/g, 'OE').replace(/Ü/g, 'UE').replace(/ß/g, 'SS').replace(/[^A-Z0-9]/g, '');
@@ -232,7 +272,7 @@ function hud() {
 
 // ---------- Rätsel am Tor ----------
 let riddle = null;
-const gateShot = gate => camShot(V(gate.x + 2.6, 3.2, gate.z + 5.2), V(gate.x, 2.2, gate.z), 3);
+const gateShot = (gate, wide = false) => wide ? camShot(V(gate.x + 3.4, 4.2, gate.z + 7.4), V(gate.x, 1.8, gate.z), 3) : camShot(V(gate.x + 2.6, 3.2, gate.z + 5.2), V(gate.x, 2.2, gate.z), 3);
 async function askGate(gi) {
   const gate = world.gates[gi], def = CH.gates[gi];
   if (gate.asking) return; gate.asking = true; // nur ein Rätsel-Ablauf pro Tor (auch beim Zurücklaufen nach einem Fehler)
@@ -243,8 +283,9 @@ async function gateLoop(gate, gi, def) {
   gateShot(gate);
   if (!gate.introduced) { gate.introduced = true; await CH.gateIntro(ctx, gi); }
   for (;;) {
-    const q = BANK[def.pool[(gate.attempt = (gate.attempt ?? -1) + 1) % def.pool.length]];
+    const q = nextQ(def, gate);
     const res = await showRiddle(q, gate);
+    await explain(q, res === 'ok');
     if (res === 'ok') {
       audio.sfx('jingles_PIZZI01'); world.drawClock(gate, 1, false, 'ok');
       await sleep(500); audio.sfx('impactMetal_heavy_002', { vol: CH.id === 'uhrwerk' ? 1 : 0.4 }); audio.sfx('doorOpen_1', { delay: 0.1 }); world.spinGate(gate, 1);
@@ -271,15 +312,27 @@ async function gateLoop(gate, gi, def) {
   }
 }
 
+// Erklärung der Lösung (js/explain.js): Tafel, Duo, Lupe oder Rechenweg. Überspringen nur, wenn richtig beantwortet.
+// Während der Erklärung pausiert Flitz.
+const EX_CAST = () => ({ a: { name: 'Prof. Uhu', face: m => Cast.team().a.draw(m) }, b: { name: 'Rocco', face: m => Cast.team().b.draw(m) }, prof: { name: 'Prof. Uhu', face: m => Cast.team().a.draw(m) } });
+async function explain(q, ok, { skippable = ok } = {}) {
+  if (!window.Explain) return;
+  state.explaining = true; audio.setTension(0);
+  try { await Explain.show({ q, cast: EX_CAST(), ok, skippable, title: `${q.tier} % lösen das`, onStep: () => audio.sfx('bookFlip1', { vol: 0.5 }) }); }
+  finally { state.explaining = false; }
+}
+
 // Rätselkarte: Auswahl (A–D) oder Texteingabe mit eigener Buchstaben-Tastatur.
 const KEYS = ['QWERTZUIOPÜ', 'ASDFGHJKLÖÄ', 'YXCVBNMß'];
+const TIP_COST = 5; // Münzen pro Tipp
 function showRiddle(q, gate) {
   return new Promise(resolve => {
     const el = $('#riddle'), text = q.type !== 'choice';
     // Bild-Rätsel mit Antworten A–D (Beschriftung in der Grafik) behalten ihre Reihenfolge
     const order = text ? [] : q.noShuffle ? q.opts.map((_, i) => i) : q.opts.map((_, i) => i).sort(() => Math.random() - 0.5);
     const letterOpts = !text && q.opts.every(o => /^[A-D]$/.test(o));
-    const item = state.item ? `<button class="r-item">${CH.item.icon} ${CH.item.label}</button>` : '';
+    const item = (state.item ? `<button class="r-item">${CH.item.icon} ${CH.item.label}</button>` : '')
+      + (state.coins >= TIP_COST ? `<button class="r-item r-tip">💡 Tipp kaufen <small>${TIP_COST} 🪙 von ${state.coins}</small></button>` : '');
     const body = text
       ? `<div class="r-input"><div class="r-typed" aria-live="polite"><span class="r-caret"></span></div><div class="r-hint" hidden></div></div>
          <div class="r-keys">${KEYS.map((row, ri) => `<div class="r-row">${[...row].map(k => `<button class="r-key" data-k="${k}">${k}</button>`).join('')}${ri === 2 ? '<button class="r-key wide" data-k="⌫" aria-label="Löschen">⌫</button>' : ''}</div>`).join('')}
@@ -289,15 +342,16 @@ function showRiddle(q, gate) {
       <div class="r-q">${q.q}</div>${q.svg ? `<div class="r-svg">${q.svg}</div>` : ''}${body}${item}<div class="r-time"><i></i></div></div>`;
     el.hidden = false; requestAnimationFrame(() => el.classList.add('show'));
     audio.sfx('question_001'); riddle = { q, gate };
-    const T = text ? 45 : 30, t0 = performance.now(); let teased = false, done = false, lastSec = T, typed = '';
+    const T = zeit.forQ(q), endless = !isFinite(T), t0 = performance.now(); let teased = false, done = false, lastSec = T, typed = '';
+    if (endless) el.querySelector('.r-time').hidden = true;
     const bar = el.querySelector('.r-time i');
     const tick = () => {
       if (done) return;
-      const left = Math.max(0, T - (performance.now() - t0) / 1000), frac = left / T;
+      const used = (performance.now() - t0) / 1000, left = endless ? Infinity : Math.max(0, T - used), frac = endless ? 1 : left / T;
       bar.style.width = (frac * 100) + '%'; bar.classList.toggle('urgent', left < 6);
-      world.drawClock(gate, frac, true); audio.setTension(1 - frac);
+      world.drawClock(gate, frac, true); audio.setTension(endless ? 0 : 1 - frac);
       const s = Math.ceil(left); if (s !== lastSec) { lastSec = s; if (s <= 5) audio.sfx('tick_004', { vol: 0.9, rate: 1.4 }); }
-      if (!teased && left < T * 0.62) { teased = true; say(react('denken'), { wait: false }); }
+      if (!teased && used > (endless ? 15 : T * 0.38)) { teased = true; say(react('denken'), { wait: false }); }
       if (left <= 0) return finish(null);
       requestAnimationFrame(tick);
     };
@@ -340,12 +394,16 @@ function showRiddle(q, gate) {
       e.preventDefault();
     };
     if (text) { el.querySelectorAll('.r-key').forEach(b => (b.onclick = () => { audio.unlock(); press(b.dataset.k); })); addEventListener('keydown', onKey); }
-    const it = el.querySelector('.r-item');
-    if (it) it.onclick = () => {
-      state.item = null; hud(); it.remove(); audio.sfx('powerUp2'); say(react(CH.item.react), { wait: false });
+    // Hilfe: Fundstück aus der Truhe (gratis) oder Tipp für Münzen – streicht eine falsche Antwort bzw. zeigt den ersten Buchstaben
+    const it = el.querySelector('.r-item:not(.r-tip)'), tip = el.querySelector('.r-tip');
+    let hinted = false;
+    if (tip) tip.onclick = () => { if (hinted || done) return; state.coins -= TIP_COST; hud(); tip.remove(); it && it.remove(); audio.sfx('handleCoins'); hint(); };
+    if (it) it.onclick = () => { if (hinted || done) return; state.item = null; hud(); it.remove(); tip && tip.remove(); audio.sfx('powerUp2'); say(react(CH.item.react), { wait: false }); hint(); };
+    function hint() {
+      hinted = true;
       if (text) { const a = String(q.a), h = el.querySelector('.r-hint'); h.hidden = false; h.textContent = `${a[0]} ${'_ '.repeat(a.length - 1).trim()}  (${a.length} Buchstaben)`; }
       else { const wrong = [...el.querySelectorAll('.r-opt')].filter(b => +b.dataset.oi !== q.a); const b = pick(wrong); b.classList.add('gone'); b.disabled = true; }
-    };
+    }
     tick();
   });
 }
@@ -358,7 +416,8 @@ async function rivalRun() {
     if (typeof step === 'string') {
       const gi = CH.gates.findIndex(g => g.id === step), gate = world.gates[gi], def = CH.gates[gi];
       for (;;) {
-        await sleep((4500 + Math.random() * 7000) * (CH.rivalPace || 1) + (rival.passed.size > player.passed.size ? 9000 : 0)); if (state.over) return;
+        await sleep((4500 + Math.random() * 7000) * (CH.rivalPace || 1) * (zeit.get() ? zeit.get() / 30 : 3) + (rival.passed.size > player.passed.size ? 9000 : 0)); if (state.over) return;
+        while (state.explaining && !multi.active) await sleep(300);
         while (rival.passed.size > player.passed.size + 1 && !state.over) await sleep(1000);
         if (Math.random() < Math.min(0.95, 0.38 + 0.6 * def.p)) {
           world.spinGate(gate, -1); audio.sfx('impactMetal_heavy_002', { vol: 0.35 }); rival.passed.add(gate.id);
@@ -409,7 +468,10 @@ async function intro() {
   await player.launch(6, V(P.x, 0, P.z - 2)); audio.sfx('impactSoft_medium_001'); player.play('emote-yes', { once: true });
   camFollow(player, 2.5);
   await say(S.land);
-  if (multi.active) {
+  if (studio.on) {
+    await studio.spawn();
+    for (const l of S.multi) await say(l);
+  } else if (multi.active) {
     for (const r of Object.values(remotes)) r.obj.visible = true;
     for (const l of S.multi) await say(l);
   } else {
@@ -420,6 +482,7 @@ async function intro() {
   }
   player.play('idle');
   state.start = performance.now(); state.playing = true;
+  if (studio.on) { $('#board').hidden = false; studio.run(); return; }
   $('#hud').hidden = false; hud(); $('#hint').hidden = false;
   if (!multi.active) rivalRun();
 }
@@ -430,7 +493,7 @@ function finishRace(winner) {
   if (winner === player) victory(); else defeat(winner);
 }
 async function victory() {
-  progress.win(CH.id);
+  state.figBefore = figs.open(); progress.win(CH.id);
   const C = world.crystal;
   player.busy = true; player.target = null; player.play('emote-yes', { once: true });
   audio.sfx('jingles_PIZZI03'); audio.sfx('powerUp2', { delay: 0.3 });
@@ -448,10 +511,11 @@ async function defeat(winner) {
   hideRocco(); endCard(false);
 }
 function endCard(won) {
-  const s = Math.round((performance.now() - state.start) / 1000), next = CHAPTERS[CHAPTERS.indexOf(CH) + 1];
+  const s = Math.round((performance.now() - state.start) / 1000), next = CHAPTERS[CHAPTERS.indexOf(CH) + 1], newFig = won && state.figBefore < figs.open() ? FIGS[figs.open() - 1] : null;
   $('#end').innerHTML = `<div class="end-card"><h2>${won ? `Kristall ${CH.nr} von 19!` : `${esc(state.winnerName || 'Flitz')} war schneller`}</h2>
     <p>${won ? CH.endText.win : CH.endText.lose}</p>
     <div class="end-stats"><div><b>${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}</b><small>Zeit</small></div><div><b>${state.coins}</b><small>Münzen</small></div><div><b>${progress.count()}</b><small>Kristalle</small></div></div>
+    ${newFig ? `<div class="end-fig"><img src="assets/figs/character-${newFig}.png" alt=""><div><b>Neue Figur freigeschaltet!</b><small>Wähle sie auf dem Startbildschirm.</small></div></div>` : ''}
     <div class="end-btns">${won && next ? `<a class="btn-go" href="?k=${next.id}">Weiter: ${esc(next.title)}</a>` : ''}
     <a class="${won && next ? 'btn-alt' : 'btn-go'}" href="?k=${CH.id}">Nochmal spielen</a></div></div>`;
   $('#end').hidden = false; $('#hint').hidden = true;
@@ -461,7 +525,7 @@ function endCard(won) {
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 canvas.addEventListener('pointerdown', e => {
   audio.unlock(); if (skipLine) { skipLine(); return; }
-  if (!state.playing || player.busy || player.air) return;
+  if (studio.on || !state.playing || player.busy || player.air) return;
   ndc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); ray.setFromCamera(ndc, camera);
   const hit = ray.intersectObjects(world.ground, false)[0]; if (!hit) return;
   const p = hit.point; player.target = V(p.x, 0, p.z); player.onArrive = null;
@@ -474,9 +538,10 @@ marker.rotation.x = -Math.PI / 2; marker.visible = false; scene.add(marker);
 // ---------- Spiel-Schleife ----------
 function triggers() {
   if (!state.playing || state.over) return;
+  if (studio.on) { CH.triggers && CH.triggers(ctx); return; } // im Studio: Tore, Münzen und Kristall steuert studio.js
   for (let gi = 0; gi < world.gates.length; gi++) { const g = world.gates[gi];
     if (!player.passed.has(g.id) && !g.asking && !player.busy && !player.air && Math.hypot(player.pos.x - g.x, player.pos.z - (g.z + 1.25)) < 1.1) { askGate(gi); return; } }
-  for (const c of world.coins) if (c.visible && player.pos.distanceTo(c.position) < 0.9) { c.visible = false; state.coins++; hud(); audio.sfx('handleCoins', { vol: 0.5 }); burst(c.position, { n: 14, colors: ['#ffc940'], up: 3, speed: 1.5, life: 0.6 }); }
+  for (const c of world.coins) if (c.visible && player.pos.distanceTo(c.position) < 0.9) { c.visible = false; state.coins++; hud(); audio.sfx('handleCoins', { vol: 0.5 }); if (!state.coinInfo) { state.coinInfo = true; ticker(`🪙 Münzen sammeln: Für ${TIP_COST} Münzen kaufst du dir bei einer Frage einen Tipp!`); } burst(c.position, { n: 14, colors: ['#ffc940'], up: 3, speed: 1.5, life: 0.6 }); }
   if (!state.chestOpened && Math.hypot(player.pos.x - CH.chest.x, player.pos.z - CH.chest.z) < 1.5 && !player.air) openChest();
   CH.triggers && CH.triggers(ctx);
   const C = world.crystal;
@@ -496,9 +561,10 @@ async function openChest() {
 }
 
 function loop() {
+  if (studio.pad) { setTimeout(loop, 500); return; } // Handy im Studio: nur Steuerung, keine 3D-Darstellung
   const dt = Math.min(0.05, clock.getDelta()), t = clock.elapsedTime;
   world.update(dt, t);
-  if (player) { player.update(dt); if (!multi.active) rival.update(dt); updateRemotes(dt); reportMe(); }
+  if (player) { player.update(dt); if (!multi.active && !state.explaining) rival.update(dt); updateRemotes(dt); reportMe(); studio.update(dt); }
   if (uhu && player) { // Uhu fliegt als Begleiter neben dem Lehrling
     const p = player.pos; uhu.position.lerp(V(p.x - 0.9, Math.max(0, p.y) + 1.35 + Math.sin(t * 2.6) * 0.12, p.z + 0.9), Math.min(1, dt * 3)); uhu.visible = !!state.playing && !state.over;
     uhu.bounce = Math.max(0, (uhu.bounce || 0) - dt * 3); uhu.scale.set(0.8 * (1 + uhu.bounce * 0.08), 1 + uhu.bounce * 0.12, 1);
@@ -522,17 +588,28 @@ const ctx = {
   get multi() { return multi; }, get riddle() { return riddle; },
 };
 
+// ---------- Studio-Modus (Bühne + Handys) ----------
+const studio = createStudio({
+  V, sleep, ctx, CH: () => CH, player: () => player, setPlayer: a => { if (player && player !== a) scene.remove(player.obj); player = a; },
+  makeActor: (m, n, c) => new Actor(models, m, n, c), zeit, nextQ, explain, BANK, isCorrect, say, react, camShot, camFollow, gateShot, burst, state, cam, showRocco, hideRocco, progress,
+  ticker: m => ticker(m), get multi() { return multi; }, get world() { return world; }, get audio() { return audio; },
+});
+
 // ---------- Mehrspieler ----------
 const remotes = {};
 const multi = new Multi({
   onStart: async (slots, chapter) => {
+    if (multi.studio && multi.role === 'guest') { studio.startPad(); studio.padState(multi.state || {}); return; }
     if (chapter && chapter !== CH.id) await loadChapter(chapter);
+    if (multi.studio) { studio.startStage(slots, multi.id); intro(); return; }
     const mine = slots[multi.id]; const slot = mine ? mine.slot : 0;
-    if (slot) { scene.remove(player.obj); player = new Actor(models, AVATARS[slot % AVATARS.length], 'Du', COLORS[slot % COLORS.length]); player.reset(); }
+    if (slot) { scene.remove(player.obj); player = new Actor(models, figModel(mine), 'Du', COLORS[slot % COLORS.length]); player.reset(); }
     syncRemotes(slots); intro();
   },
   onChapter: id => { if (id !== CH.id) loadChapter(id); },
-  onPlayers: slots => syncRemotes(slots),
+  onPlayers: slots => { if (!multi.studio) syncRemotes(slots); },
+  onState: st => studio.padState(st),
+  onAnswer: (from, msg) => studio.answer(from, msg),
   onEvent: ev => {
     const who = multi.name(ev.from), def = CH.gates[ev.gate];
     if (ev.kind === 'pass') { world.spinGate(world.gates[ev.gate], -1); audio.sfx('impactMetal_heavy_002', { vol: 0.3 }); ticker(`🚪 ${who} ist durch Tor ${ev.gate + 1}!`); }
@@ -549,7 +626,7 @@ function syncRemotes(slots) {
   for (const [id, p] of Object.entries(slots)) {
     if (id === multi.id || !p || !p.name) continue;
     let r = remotes[id];
-    if (!r) { const slot = p.slot ?? 1; r = remotes[id] = new Actor(models, AVATARS[slot % AVATARS.length], p.name, COLORS[slot % COLORS.length]); r.obj.visible = !!state.playing; r.net = {}; }
+    if (!r) { const slot = p.slot ?? 1; r = remotes[id] = new Actor(models, figModel(p), p.name, COLORS[slot % COLORS.length]); r.obj.visible = !!state.playing; r.net = {}; }
     if (p.x != null) r.net = p;
   }
   for (const id of Object.keys(remotes)) if (!slots[id]) { scene.remove(remotes[id].obj); delete remotes[id]; }
@@ -566,7 +643,7 @@ function updateRemotes(dt) {
 }
 let lastReport = 0;
 function reportMe() {
-  if (!multi.active || !state.playing) return; const t = performance.now(); if (t - lastReport < 90) return; lastReport = t;
+  if (!multi.active || multi.studio || !state.playing) return; const t = performance.now(); if (t - lastReport < 90) return; lastReport = t;
   const p = player.pos; multi.report({ x: +p.x.toFixed(2), y: +p.y.toFixed(2), z: +p.z.toFixed(2), ry: +player.obj.rotation.y.toFixed(2), anim: player.animName || 'idle', hearts: state.hearts });
 }
 function ticker(msg) { const el = $('#ticker'); const d = document.createElement('div'); d.className = 'tk'; d.textContent = msg; el.prepend(d); setTimeout(() => d.classList.add('out'), 3800); setTimeout(() => d.remove(), 4400); }
@@ -583,7 +660,7 @@ async function loadChapter(id) {
     CH = next; resetState();
     world = new World(scene, models, CH.theme); CH.build(world);
     for (const a of [player, rival]) if (a) a.reset(world.portal.x, world.portal.z - 2);
-    CH.setup && CH.setup(ctx);
+    CH.setup && CH.setup(ctx); buildPools();
     renderTitle();
   })();
   loading = job; await job; loading = null;
@@ -593,6 +670,15 @@ function renderTitle() {
   $('#chapter-name').textContent = `Kapitel ${CH.nr} · ${CH.title}`;
   $('#chapters').innerHTML = CHAPTERS.map(c => `<button class="ch-card ${c === CH ? 'on' : ''}" data-ch="${c.id}"><b>${c.nr}</b><span>${esc(c.title)}</span><i class="${got[c.id] ? 'got' : ''}" title="${got[c.id] ? 'Kristall geholt' : 'Kristall fehlt noch'}"></i></button>`).join('')
     + `<div class="ch-count">${progress.count()} von 19 Kristallen</div>`;
+  const nOpen = figs.open(), cur = figs.get();
+  $('#figs').innerHTML = FIGS.map((f, i) => i < nOpen ? `<button class="fig ${f === cur ? 'on' : ''}" data-f="${f}" title="Figur wählen"><img src="assets/figs/character-${f}.png" alt=""></button>`
+    : `<span class="fig locked" title="Wird mit Kristall ${i - 1} freigeschaltet"><img src="assets/figs/character-${f}.png" alt=""><i>🔒${i - 1}</i></span>`).join('');
+  document.querySelectorAll('.fig[data-f]').forEach(b => (b.onclick = () => { audio.unlock(); audio.sfx('select_002'); figs.set(b.dataset.f);
+    if (!state.playing && player) { scene.remove(player.obj); player = new Actor(models, 'mini/character-' + b.dataset.f, 'Du', '#ffc940'); player.reset(world.portal.x, world.portal.z - 2); CH.setup && CH.setup(ctx); }
+    renderTitle(); }));
+  const z = zeit.get();
+  $('#zeit').innerHTML = `<span>⏱ Bedenkzeit</span>${zeit.opts.map(v => `<button class="zt ${v === z ? 'on' : ''}" data-z="${v}">${v ? v + ' s' : 'ohne Limit'}</button>`).join('')}`;
+  document.querySelectorAll('.zt').forEach(b => (b.onclick = () => { audio.unlock(); audio.sfx('select_002'); zeit.set(+b.dataset.z); renderTitle(); }));
   document.querySelectorAll('.ch-card').forEach(b => (b.onclick = async () => {
     audio.unlock(); audio.sfx('select_002');
     if (multi.active) return;
@@ -608,8 +694,8 @@ async function boot() {
   const want = new URLSearchParams(location.search).get('k');
   const first = CHAPTERS.find(c => c.id === want) || CHAPTERS[0];
   $('#loading-text').textContent = first.loading;
-  await models.load(['mini/character-female-b', 'mini/character-male-f']);
-  player = new Actor(models, 'mini/character-female-b', 'Du', '#ffc940'); player.obj.visible = false;
+  await models.load([...new Set(['mini/character-male-f', ...FIGS.map(f => 'mini/character-' + f), ...AVATARS])]); // alle Spielfiguren (eigene Wahl + Mehrspieler)
+  player = new Actor(models, 'mini/character-' + figs.get(), 'Du', '#ffc940'); player.obj.visible = false;
   rival = new Actor(models, 'mini/character-male-f', 'Flitz', '#ff7ab6'); rival.obj.visible = false;
   Cast.use('wette');
   uhu = svgSprite(Cast.team().a.draw('happy'), 1.0); uhu.visible = false; scene.add(uhu);
@@ -620,11 +706,12 @@ async function boot() {
 }
 $('#btn-solo').onclick = async () => { audio.unlock(); audio.sfx('confirmation_002'); await loading; intro(); };
 const myName = () => ($('#name').value.trim() || 'Spieler').slice(0, 14);
-$('#btn-host').onclick = async () => { audio.unlock(); audio.sfx('confirmation_002'); await loading; try { localStorage.setItem('rw:name', myName()); } catch {} $('#title').classList.add('gone'); multi.host(myName(), CH.id); };
-$('#btn-join').onclick = () => { audio.unlock(); const code = $('#code').value.trim().toUpperCase(); if (code.length < 4) { $('#code').focus(); return; } try { localStorage.setItem('rw:name', myName()); } catch {} $('#title').classList.add('gone'); multi.join(code, myName()); };
+$('#btn-host').onclick = async () => { audio.unlock(); audio.sfx('confirmation_002'); await loading; try { localStorage.setItem('rw:name', myName()); } catch {} $('#title').classList.add('gone'); multi.fig = figs.get(); multi.host(myName(), CH.id); };
+$('#btn-studio').onclick = async () => { audio.unlock(); audio.sfx('confirmation_002'); await loading; $('#title').classList.add('gone'); multi.host('Bühne', CH.id, { studio: true }); };
+$('#btn-join').onclick = () => { audio.unlock(); const code = $('#code').value.trim().toUpperCase(); if (code.length < 4) { $('#code').focus(); return; } try { localStorage.setItem('rw:name', myName()); } catch {} $('#title').classList.add('gone'); multi.fig = figs.get(); multi.join(code, myName()); };
 try { $('#name').value = localStorage.getItem('rw:name') || ''; } catch {}
 const joinCode = new URLSearchParams(location.search).get('join'); if (joinCode) { $('#code').value = joinCode.toUpperCase(); $('#join-row').classList.add('focus'); }
 $('#talk').onclick = () => skipLine && skipLine();
 window.__welten = { remotes, get uhu() { return uhu; }, get rocco() { return rocco; }, get riddle() { return riddle; }, get state() { return state; }, get player() { return player; }, get rival() { return rival; }, get world() { return world; },
-  get chapter() { return CH; }, loadChapter, BANK, isCorrect, progress, ctx };
+  get chapter() { return CH; }, loadChapter, BANK, isCorrect, progress, ctx, get studio() { return studio; } };
 boot().catch(e => { $('#loading').innerHTML = `<p style="color:#fff;padding:20px">Fehler beim Laden: ${e.message}</p>`; console.error(e); });

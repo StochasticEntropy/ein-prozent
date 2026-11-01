@@ -5,6 +5,8 @@
 import { createRoom, joinRoom } from '../net/room.js';
 
 const $ = s => document.querySelector(s);
+// Figur eines Spielers: selbst gewählt (fig) oder nach Platz in der Lobby
+export const figModel = p => p && p.fig ? 'mini/character-' + p.fig : AVATARS[((p && p.slot) ?? 1) % 6];
 export const AVATARS = ['mini/character-female-b', 'mini/character-male-f', 'mini/character-female-e', 'mini/character-male-c', 'mini/character-female-d', 'mini/character-male-b'];
 export const COLORS = ['#ffc940', '#ff7ab6', '#56e4ff', '#2fe39f', '#c39bff', '#ff9f43'];
 
@@ -16,14 +18,15 @@ export class Multi {
   get active() { return this.role !== 'solo'; }
 
   // ---------- Lobby ----------
-  async host(name, chapter) {
-    this.role = 'host'; this.chapter = chapter;
+  // studio: dieses Gerät ist nur Bühne (spielt nicht mit), alle anderen antworten auf ihren Handys
+  async host(name, chapter, { studio = false } = {}) {
+    this.role = 'host'; this.chapter = chapter; this.studio = studio;
     this.lobby(`<div class="lb-wait">Raum wird geöffnet …</div>`);
     try { this.room = await createRoom({ name, joinUrl: c => location.origin + location.pathname + '?join=' + c }); }
     catch (e) { return this.fail(e); }
     this.id = this.room.id || 'host';
-    this.players[this.id] = { name, slot: 0 };
-    this.room.on('peer-join', ({ peer }) => { if (!this.players[peer.id]) this.players[peer.id] = { name: peer.name, slot: Object.keys(this.players).length % AVATARS.length }; this.sync(); this.renderLobby(); });
+    this.players[this.id] = { name: studio ? 'Bühne' : name, slot: 0, ...(studio ? { stage: true } : { fig: this.fig }) };
+    this.room.on('peer-join', ({ peer }) => { if (!this.players[peer.id]) this.players[peer.id] = { name: peer.name, slot: Object.keys(this.players).length % AVATARS.length, fig: peer.meta && peer.meta.fig }; this.sync(); this.renderLobby(); });
     this.room.on('peer-reconnect', ({ peer }) => { this.h.toast(`${peer.name} ist wieder da`); this.renderLobby(); });
     this.room.on('peer-leave', ({ peer, reason }) => { if (reason === 'left' || reason === 'kicked') { delete this.players[peer.id]; this.room.setState({ players: { [peer.id]: null } }); } this.h.toast(`${peer.name} ist ${reason === 'left' ? 'gegangen' : 'getrennt'}`); this.renderLobby(); });
     this.room.on('message', ({ from, msg }) => this.onGuestMsg(from && from.id != null ? from.id : from, msg)); // from = öffentliche Spielersicht {id, name, …}
@@ -33,7 +36,7 @@ export class Multi {
   async join(code, name) {
     this.role = 'guest';
     this.lobby(`<div class="lb-wait">Verbinde mit Raum ${code} …</div>`);
-    try { this.me = await joinRoom(code, { name }); } catch (e) { return this.fail(e); }
+    try { this.me = await joinRoom(code, { name, meta: { fig: this.fig } }); } catch (e) { return this.fail(e); }
     this.id = this.me.id;
     this.me.on('state', ({ state }) => this.onState(state));
     this.me.on('message', ({ msg }) => this.onHostMsg(msg));
@@ -50,21 +53,21 @@ export class Multi {
   renderLobby() {
     if (this.started) return;
     const list = Object.entries(this.state?.players || this.players).filter(([, p]) => p && p.name)
-      .map(([id, p]) => `<li><span class="lb-dot" style="background:${COLORS[p.slot ?? 0]}"></span>${esc(p.name)}${id === this.id ? ' <small>(du)</small>' : ''}</li>`).join('');
+      .map(([id, p]) => `<li><span class="lb-dot" style="background:${COLORS[p.slot ?? 0]}"></span>${esc(p.name)}${p.stage ? ' <small>(Bühne)</small>' : id === this.id ? ' <small>(du)</small>' : ''}</li>`).join('');
     if (this.role === 'host') {
       const n = Object.keys(this.players).length;
-      this.lobby(`<h2>Raum <b class="lb-code">${this.room.code}</b></h2>
-        <p>Scannt den Code oder öffnet die Seite und tippt „Raum beitreten“.</p>
+      this.lobby(`<h2>${this.studio ? 'Studio' : 'Raum'} <b class="lb-code">${this.room.code}</b></h2>
+        <p>${this.studio ? 'Scannt den Code mit euren Handys – dort beantwortet ihr die Fragen. Dieses Gerät ist die Bühne.' : 'Scannt den Code oder öffnet die Seite und tippt „Raum beitreten“.'}</p>
         <img class="lb-qr" src="${this.room.qrDataUrl}" alt="QR-Code zum Beitreten">
         <ul class="lb-list">${list}</ul>
-        <button class="btn-go" id="lb-start" ${n < 2 ? 'disabled' : ''}>${n < 2 ? 'Warte auf Mitspieler …' : `Los geht's (${n} Spieler)`}</button>`);
+        <button class="btn-go" id="lb-start" ${n < 2 ? 'disabled' : ''}>${n < 2 ? 'Warte auf Mitspieler …' : `Los geht's (${this.studio ? n - 1 : n} Spieler)`}</button>`);
       $('#lb-start').onclick = () => this.start();
     } else {
       this.lobby(`<h2>Raum <b class="lb-code">${this.me ? '' : ''}${(this.state && this.state.code) || ''}</b></h2>
-        <p>Du bist drin! Warte, bis der Gastgeber startet.</p><ul class="lb-list">${list}</ul><div class="lb-wait">⏳</div>`);
+        <p>${this.studio ? 'Du bist im Studio! Die Fragen kommen gleich auf dein Handy – schau auf die Bühne.' : 'Du bist drin! Warte, bis der Gastgeber startet.'}</p><ul class="lb-list">${list}</ul><div class="lb-wait">⏳</div>`);
     }
   }
-  sync() { this.room.setState({ code: this.room.code, chapter: this.chapter, players: this.players }, { immediate: true }); }
+  sync() { this.room.setState({ code: this.room.code, chapter: this.chapter, mode: this.studio ? 'studio' : 'race', players: this.players }, { immediate: true }); }
   start() {
     this.started = true; this.room.lock(); this.room.setState({ phase: 'play', startAt: Date.now() + 800 }, { immediate: true });
     this.room.broadcast({ type: 'start' }); $('#lobby').hidden = true; this.h.onStart(this.slots(), this.chapter);
@@ -90,12 +93,13 @@ export class Multi {
   onGuestMsg(from, msg) {
     if (msg.type === 'me') { const { type, ...me } = msg; this.players[from] = { ...this.players[from], ...me }; this.room.setState({ players: { [from]: me } }); this.h.onPlayers(this.players); }
     else if (msg.type === 'ev') this.applyEvent({ ...msg.ev, from });
+    else if (msg.type === 'ans') this.h.onAnswer && this.h.onAnswer(from, msg);
   }
   onState(state) {
-    this.state = state;
+    this.state = state; this.studio = state.mode === 'studio';
     if (state.chapter && state.chapter !== this.chapter) { this.chapter = state.chapter; if (!this.started) this.h.onChapter(state.chapter); }
     if (!this.started) { if (state.phase === 'play') { this.started = true; $('#lobby').hidden = true; this.h.onStart(this.slots(), this.chapter); } else this.renderLobby(); }
-    this.h.onPlayers(this.slots());
+    this.h.onPlayers(this.slots()); this.h.onState && this.h.onState(state);
     if (state.winner && !this.winner) { this.winner = state.winner; this.h.onWinner(state.winner); }
   }
   onHostMsg(msg) {

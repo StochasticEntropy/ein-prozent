@@ -22,6 +22,7 @@ export default {
   theme: { sky: ['#2e1a6e', '#ff8fc8', '#ffb36b'], fog: ['#d7a6d8', 36, 110], hemi: ['#ffeaff', '#5a3a8a', 0.8], sun: ['#ffdff2', 1.55], cloud: '#ffd6f2', clouds: 50 },
   music: 'kirmes', bridgeSfx: 'select_002', rivalPace: 1.25, // Bild-Rätsel brauchen etwas länger
   models: ['block-grass-large', 'coin-gold', 'chest', 'flowers', 'barrel', 'crate'],
+  cats: ['Bilder'], // Kategorien der Fragenbank, aus denen die Tore schöpfen
   lines: LINES, react: REACT, speakers: SPEAKERS,
   seq: { intro: ['sk_intro1', 'sk_intro2'], fly: 'sk_intro3', afterFly: ['sk_intro4'], land: 'sk_land1', multi: ['sk_multi1', 'sk_multi2'], solo: ['sk_flitz1', 'sk_flitz1b'],
     win: ['sk_sieg1', 'sk_sieg2', 'sk_sieg3'], lose: ['sk_niederlage1', 'sk_niederlage2'], out: 'sk_ausgeschieden' },

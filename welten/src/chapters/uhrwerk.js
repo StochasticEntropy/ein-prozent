@@ -10,6 +10,7 @@ export default {
   theme: {}, music: 'uhrwerk',
   models: ['block-grass-large', 'tree', 'tree-pine', 'flowers', 'mushrooms', 'rocks', 'grass', 'sign', 'barrel', 'crate', 'coin-gold', 'chest',
     'door-rotate-large', 'block-moving', 'trap-spikes'],
+  cats: ['Zeit', 'Logik'], // Kategorien der Fragenbank, aus denen die Tore schöpfen
   lines: LINES, react: {},
   speakers: { kuckuck: { name: 'Kuckuck', voice: false, babble: 880, face: 'kuckuck' } },
   seq: { intro: ['intro1', 'intro2'], fly: 'intro3', afterFly: ['intro4'], land: 'land1', multi: ['multi1', 'multi2'], solo: ['flitz1', 'flitz1b'],
