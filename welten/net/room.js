@@ -11,6 +11,8 @@
 // Bibliotheken liegen fest gepinnt unter ./vendor/ (keine CDN-Abhängigkeit zur Laufzeit). Für die
 // Vermittlung (Signalisierung) wird der öffentliche PeerJS-Server genutzt – das braucht Internet.
 
+import { relayHost, relayConnect } from './relay.js';
+
 const VENDOR = {
   peer: new URL('./vendor/peerjs-1.5.4.min.js', import.meta.url).href,
   qr: new URL('./vendor/qrcode-generator-1.4.4.min.js', import.meta.url).href,
@@ -24,6 +26,8 @@ export const DEFAULTS = {
   lostAfterMs: 8000,               // ohne Lebenszeichen gilt die Verbindung als abgerissen
   retryForMs: 60000,               // so lange versucht ein Gast, sich wieder zu verbinden
   connectTimeoutMs: 12000,
+  directTimeoutMs: 7000,           // so lange wird die Direktverbindung versucht, dann geht's über den Ersatzweg (relay.js)
+  forceRelay: /[?&]relay=1/.test(location.search), // nur Ersatzweg (zum Testen)
   tickHz: 15,                      // Deltas werden höchstens so oft pro Sekunde verschickt
   snapshotEveryMs: 10000,          // zur Sicherheit regelmäßig ein voller Snapshot
   queueLimit: 50,                  // Gast: Nachrichten, die während eines Abbruchs gepuffert werden
@@ -85,15 +89,18 @@ function loadScript(url) {
   }
   return loaded.get(url);
 }
+// QR-Bibliothek ist Pflicht; PeerJS (Direktverbindung) nur, wenn der Browser WebRTC kann – sonst geht alles über den Ersatzweg.
 async function loadVendor() {
-  if (typeof RTCPeerConnection === 'undefined') throw roomError('browser-unsupported');
-  await Promise.all([window.Peer ? null : loadScript(VENDOR.peer), window.qrcode ? null : loadScript(VENDOR.qr)]);
+  await Promise.all([window.qrcode ? null : loadScript(VENDOR.qr),
+    window.Peer || typeof RTCPeerConnection === 'undefined' ? null : loadScript(VENDOR.peer).catch(() => null)]);
 }
+const canDirect = o => !o.forceRelay && !!window.Peer;
 
 // Verständliche Fehlermeldungen (Deutsch) – `code` ist für Programmlogik, `message` für Menschen.
 const MESSAGES = {
   'offline': 'Keine Internetverbindung. Für Mehrspieler müssen alle Geräte online sein.',
   'room-not-found': 'Diesen Raum gibt es nicht (mehr). Bitte den Code prüfen.',
+  'no-connection': 'Keine Verbindung zum Raum. Läuft der Raum auf dem anderen Gerät noch? Sonst bitte beide Geräte neu laden.',
   'server-unreachable': 'Der Vermittlungsserver ist gerade nicht erreichbar. Bitte gleich noch einmal versuchen.',
   'no-direct-connection': 'Keine Direktverbindung möglich. Manche Netze (Firmen-, Schul- oder Gäste-WLAN, einige Mobilfunknetze) blockieren Verbindungen zwischen Geräten – ein anderes WLAN oder ein Handy-Hotspot hilft meist.',
   'room-full': 'Der Raum ist voll.',
@@ -154,13 +161,16 @@ export async function createRoom(options = {}) {
   const o = { ...DEFAULTS, ...options, peerOptions: { ...DEFAULTS.peerOptions, ...(options.peerOptions || {}) } };
   if (!navigator.onLine) throw roomError('offline');
   await loadVendor();
-  let peer = null, code = null, lastErr = null;
-  for (let k = 0; k < 6 && !peer; k++) {
-    code = Array.from(crypto.getRandomValues(new Uint8Array(o.codeLength)), b => CODE_CHARS[b % CODE_CHARS.length]).join('');
-    try { peer = await openPeer(o.prefix + code, o); } catch (e) { lastErr = e; if (e?.type !== 'unavailable-id') throw fromPeerError(e); }
+  const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(o.codeLength)), b => CODE_CHARS[b % CODE_CHARS.length]).join('');
+  let peer = null, code = newCode(), lastErr = null;
+  if (canDirect(o)) for (let k = 0; k < 6 && !peer; k++) {
+    try { peer = await openPeer(o.prefix + code, o); } catch (e) { lastErr = e; if (e?.type !== 'unavailable-id') break; code = newCode(); }
   }
-  if (!peer) throw fromPeerError(lastErr);
-  return new Room(o, peer, code);
+  // Ersatzweg immer zusätzlich öffnen: Gäste, die keine Direktverbindung bekommen, kommen darüber herein.
+  const room = new Room(o, peer, code);
+  try { room._relay = await relayHost(o.prefix, code, c => room._onConnection(c)); }
+  catch (e) { if (!peer) { room.close(); throw lastErr ? fromPeerError(lastErr) : roomError('server-unreachable', e); } }
+  return room;
 }
 
 class Room extends Emitter {
@@ -177,9 +187,11 @@ class Room extends Emitter {
     this._peers = new Map();       // id → { id, name, meta, token, conn, connected, lastSeen, rtt }
     this._byToken = new Map();
     this._pending = null; this._flushTimer = null;
-    peer.on('connection', c => this._onConnection(c));
-    peer.on('disconnected', () => { if (!this.closed && !peer.destroyed) try { peer.reconnect(); } catch { /* egal */ } });
-    peer.on('error', e => { if (!this.closed) this._emit('error', { error: fromPeerError(e) }); });
+    if (peer) {
+      peer.on('connection', c => this._onConnection(c));
+      peer.on('disconnected', () => { if (!this.closed && !peer.destroyed) try { peer.reconnect(); } catch { /* egal */ } });
+      peer.on('error', e => { if (!this.closed) this._emit('error', { error: fromPeerError(e) }); });
+    }
     this._hb = setInterval(() => this._heartbeat(), o.heartbeatMs);
     this._snap = setInterval(() => this._broadcastRaw({ t: 'snap', v: this.version, state: this.state }), o.snapshotEveryMs);
     this._onHide = () => this.close();
@@ -228,8 +240,8 @@ class Room extends Emitter {
     this.closed = true;
     clearInterval(this._hb); clearInterval(this._snap); clearTimeout(this._flushTimer);
     removeEventListener('pagehide', this._onHide);
-    const peer = this._peer;
-    setTimeout(() => { try { peer.destroy(); } catch { /* egal */ } }, 300);
+    const peer = this._peer, relay = this._relay;
+    setTimeout(() => { try { peer?.destroy(); } catch { /* egal */ } try { relay?.close(); } catch { /* egal */ } }, 300);
     this._emit('closed', {});
   }
 
@@ -368,28 +380,48 @@ class Client extends Emitter {
 
   // --- intern ---
   async _start() {
-    this._peer = await openPeer(null, this.o).catch(e => { throw fromPeerError(e); });
-    this._peer.on('disconnected', () => { if (this.status !== 'closed' && !this._peer.destroyed) try { this._peer.reconnect(); } catch { /* egal */ } });
+    await this._openPeer();
     await this._connect();
     this._hb = setInterval(() => this._heartbeat(), this.o.heartbeatMs);
   }
 
-  _connect() {
+  // Direktverbindung vorbereiten (falls möglich) – ohne sie geht es über den Ersatzweg weiter.
+  async _openPeer() {
+    if (!canDirect(this.o) || this._relayMode) return;
+    try {
+      this._peer = await openPeer(null, this.o);
+      this._peer.on('disconnected', () => { if (this.status !== 'closed' && this._peer && !this._peer.destroyed) try { this._peer.reconnect(); } catch { /* egal */ } });
+    } catch { this._peer = null; }
+  }
+  // Erst direkt (WebRTC), klappt das nicht: über den Ersatzweg. Hat der Ersatzweg einmal funktioniert, bleibt es dabei.
+  async _connect() {
+    let directErr = null;
+    const final = e => ['room-locked', 'room-full', 'kicked'].includes(e?.code);
+    if (this._peer && !this._peer.destroyed && !this._relayMode) {
+      try { return await this._handshake(this._peer.connect(this.o.prefix + this.code, { reliable: true }), this.o.directTimeoutMs, this._peer); }
+      catch (e) { if (final(e)) throw e; directErr = e; }
+    }
+    let c;
+    try { c = await relayConnect(this.o.prefix, this.code); }
+    catch { throw directErr || roomError('server-unreachable'); }
+    try { await this._handshake(c, this.o.connectTimeoutMs, null); this._relayMode = true; }
+    catch (e) { if (final(e)) throw e; throw directErr?.code === 'room-not-found' ? directErr : roomError('no-connection', e); }
+  }
+  _handshake(c, timeoutMs, peer) {
     return new Promise((res, rej) => {
-      const peer = this._peer;
       let settled = false;
-      const c = peer.connect(this.o.prefix + this.code, { reliable: true });
-      const fail = e => { if (settled) return; settled = true; clearTimeout(t); peer.off('error', onPeerErr); try { c.close(); } catch { /* egal */ } rej(e); };
+      const fail = e => { if (settled) return; settled = true; clearTimeout(t); peer?.off('error', onPeerErr); try { c.close(); } catch { /* egal */ } rej(e); };
       const onPeerErr = e => { if (e?.type === 'peer-unavailable') fail(roomError('room-not-found', e)); };
-      const t = setTimeout(() => fail(roomError('no-direct-connection')), this.o.connectTimeoutMs);
-      peer.on('error', onPeerErr);
+      const t = setTimeout(() => fail(roomError('no-direct-connection')), timeoutMs);
+      peer?.on('error', onPeerErr);
       guardChannel(c, () => { if (this._conn === c) this._lost(); });
-      c.on('open', () => { this._lastMsg = now(); safeSend(c, { t: 'hello', token: this._token, name: this.name, meta: this.meta }); });
+      const hello = () => { this._lastMsg = now(); safeSend(c, { t: 'hello', token: this._token, name: this.name, meta: this.meta }); };
+      c.on('open', hello); if (c.relay && c.open) hello();
       c.on('data', m => {
         if (!m || typeof m !== 'object') return;
         if (!settled) {
           if (m.t === 'welcome') {
-            settled = true; clearTimeout(t); peer.off('error', onPeerErr);
+            settled = true; clearTimeout(t); peer?.off('error', onPeerErr);
             this._conn = c; this._welcome(m); res();
           } else if (m.t === 'reject') fail(roomError(m.code));
           return;
@@ -451,10 +483,10 @@ class Client extends Emitter {
     let lastErr = null;
     while (this.status === 'reconnecting' && now() < until) {
       try {
-        if (!this._peer || this._peer.destroyed) {
-          this._peer = await openPeer(null, this.o);
-          this._peer.on('disconnected', () => { if (this.status !== 'closed' && !this._peer.destroyed) try { this._peer.reconnect(); } catch { /* egal */ } });
-        } else if (this._peer.disconnected) { try { this._peer.reconnect(); } catch { /* egal */ } await new Promise(r => setTimeout(r, 1000)); }
+        if (!this._relayMode) {
+          if (!this._peer || this._peer.destroyed) await this._openPeer();
+          else if (this._peer.disconnected) { try { this._peer.reconnect(); } catch { /* egal */ } await new Promise(r => setTimeout(r, 1000)); }
+        }
         await this._connect();
         return; // _welcome hat 'reconnect' gemeldet
       } catch (e) {
@@ -481,5 +513,7 @@ class Client extends Emitter {
   }
 
   /** Nur für Tests: Verbindung hart kappen (wie ein Funkloch), ohne sich abzumelden. */
-  _debugDrop() { try { this._conn?.peerConnection?.close(); } catch { /* egal */ } }
+  _debugDrop() { try { this._conn?.relay ? this._conn._gone() : this._conn?.peerConnection?.close(); } catch { /* egal */ } }
+  /** Läuft die Verbindung über den Ersatzweg? */
+  get relayed() { return !!this._conn?.relay; }
 }

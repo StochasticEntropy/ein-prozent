@@ -9,6 +9,12 @@ const SFX_FILES = ['select_002', 'confirmation_002', 'question_001', 'tick_002',
   'jingles_SAX08', 'jingles_NES03', 'jingles_HIT00', 'jingles_HIT05', 'doorOpen_1', 'creak1', 'handleCoins', 'metalLatch',
   'bookFlip1', 'powerUp2', 'phaseJump1', 'zap1', 'pepSound1', 'lowDown', 'highUp', 'spaceTrash1'];
 
+// Spiegelkabinett: kleine Drehorgel-Melodie in C-Dur (0 = Pause), Grundtöne und Begleitakkorde je Takt
+const KIRMES = [72, 0, 76, 0, 79, 0, 77, 0, 74, 0, 71, 0, 72, 74, 76, 77, 79, 0, 79, 77, 74, 71, 67, 0,
+  76, 0, 79, 0, 84, 0, 83, 0, 79, 0, 74, 0, 77, 76, 74, 72, 71, 0, 72, 0, 67, 0, 60, 0];
+const KBASS = [48, 43, 48, 43, 48, 43, 43, 48];
+const KCHORD = [[64, 67], [65, 71], [64, 67], [65, 71], [64, 67], [65, 71], [65, 71], [64, 67]];
+
 export class Audio {
   constructor() {
     this.ctx = null; this.buf = {}; this.voiceBuf = {};
@@ -85,8 +91,8 @@ export class Audio {
   // Themen: 'uhrwerk' = Spieluhr mit Uhrwerk-Klicken, 'wald' = Flöte über Zupfbass, mit Vogelrufen.
   startMusic(theme = 'uhrwerk') {
     if (!this.ctx || this.music) return;
-    const wald = theme === 'wald';
-    const ctx = this.ctx, bpm = wald ? 92 : 104, beat = 60 / bpm;
+    const wald = theme === 'wald', kirmes = theme === 'kirmes';
+    const ctx = this.ctx, bpm = wald ? 92 : kirmes ? 150 : 104, beat = 60 / bpm;
     const melody = wald
       ? [74, 0, 76, 78, 81, 0, 78, 76, 74, 76, 78, 0, 71, 0, 69, 71, 74, 0, 76, 78, 81, 83, 81, 78, 76, 0, 74, 71, 69, 0, 71, 0]
       : [67, 71, 74, 79, 78, 74, 71, 74, 72, 76, 79, 84, 83, 79, 76, 79, 71, 74, 79, 83, 81, 78, 74, 78, 72, 76, 81, 79, 78, 74, 71, 67];
@@ -120,11 +126,16 @@ export class Audio {
       while (next < ctx.currentTime + 0.25) {
         const half = beat / 2;
         const m = melody[step % melody.length];
-        if (wald) { if (m) flute(m, next, beat * 0.9, 0.16); if (step % 2 === 0) note(bass[(step / 4 | 0) % bass.length] + (step % 4 ? 7 : 0), next, 0.35, 0.16); if (Math.random() < 0.04) bird(next); }
+        if (kirmes) { // Jahrmarkt-Walzer: 6 Achtel pro Takt – Bass auf 1, Orgel-Akkord auf 2 und 3
+          const bar = (step / 6 | 0) % 8, pos = step % 6, km = KIRMES[step % KIRMES.length];
+          if (km) note(km, next, 0.32, 0.13, 'square');
+          if (pos === 0) note(KBASS[bar], next, 0.45, 0.2, 'triangle');
+          if (pos === 2 || pos === 4) for (const c of KCHORD[bar]) note(c, next, 0.18, 0.06, 'square');
+        } else if (wald) { if (m) flute(m, next, beat * 0.9, 0.16); if (step % 2 === 0) note(bass[(step / 4 | 0) % bass.length] + (step % 4 ? 7 : 0), next, 0.35, 0.16); if (Math.random() < 0.04) bird(next); }
         else note(m, next, 0.6, 0.22);
-        if (step % 4 === 0) note(bass[(step / 4 | 0) % bass.length], next, beat * 1.8, 0.18, 'sine');
+        if (!kirmes && step % 4 === 0) note(bass[(step / 4 | 0) % bass.length], next, beat * 1.8, 0.18, 'sine');
         // Uhrwerk-Klicken
-        if (!wald && step % 2 === 0) { const b = this.buf.tick_002; if (b) { const s = ctx.createBufferSource(); s.buffer = b; const g = ctx.createGain(); g.gain.value = 0.25 + this.tension * 0.4; s.connect(g); g.connect(this.musicBus); s.start(next); } }
+        if (!wald && !kirmes && step % 2 === 0) { const b = this.buf.tick_002; if (b) { const s = ctx.createBufferSource(); s.buffer = b; const g = ctx.createGain(); g.gain.value = 0.25 + this.tension * 0.4; s.connect(g); g.connect(this.musicBus); s.start(next); } }
         // Spannung: tiefer Puls, der mit tension lauter und schneller wird
         if (this.tension > 0.05 && step % (this.tension > 0.6 ? 1 : 2) === 0) note(36, next, 0.18, 0.12 + this.tension * 0.25, 'sine');
         next += half; step++;

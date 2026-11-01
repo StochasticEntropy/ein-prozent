@@ -14,8 +14,9 @@ import { REACT, SPEAKERS } from './script.js';
 import { Multi, AVATARS, COLORS } from './multi.js';
 import uhrwerk from './chapters/uhrwerk.js';
 import wortwald from './chapters/wortwald.js';
+import spiegel from './chapters/spiegel.js';
 
-const CHAPTERS = [uhrwerk, wortwald];
+const CHAPTERS = [uhrwerk, wortwald, spiegel];
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -86,7 +87,7 @@ class Models {
 // ---------- Figuren (Spieler, Rivale, Mitspieler) ----------
 class Actor {
   constructor(models, model, name, color) {
-    this.name = name; this.obj = models.get(model); this.obj.scale.setScalar(1.6);
+    this.name = name; this.model = model; this.obj = models.get(model); this.obj.scale.setScalar(1.6);
     this.obj.traverse(o => { if (o.isMesh) { o.castShadow = true; } });
     scene.add(this.obj);
     this.mixer = new THREE.AnimationMixer(this.obj); this.actions = {};
@@ -275,13 +276,15 @@ const KEYS = ['QWERTZUIOPÜ', 'ASDFGHJKLÖÄ', 'YXCVBNMß'];
 function showRiddle(q, gate) {
   return new Promise(resolve => {
     const el = $('#riddle'), text = q.type !== 'choice';
-    const order = text ? [] : q.opts.map((_, i) => i).sort(() => Math.random() - 0.5);
+    // Bild-Rätsel mit Antworten A–D (Beschriftung in der Grafik) behalten ihre Reihenfolge
+    const order = text ? [] : q.noShuffle ? q.opts.map((_, i) => i) : q.opts.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const letterOpts = !text && q.opts.every(o => /^[A-D]$/.test(o));
     const item = state.item ? `<button class="r-item">${CH.item.icon} ${CH.item.label}</button>` : '';
     const body = text
       ? `<div class="r-input"><div class="r-typed" aria-live="polite"><span class="r-caret"></span></div><div class="r-hint" hidden></div></div>
          <div class="r-keys">${KEYS.map((row, ri) => `<div class="r-row">${[...row].map(k => `<button class="r-key" data-k="${k}">${k}</button>`).join('')}${ri === 2 ? '<button class="r-key wide" data-k="⌫" aria-label="Löschen">⌫</button>' : ''}</div>`).join('')}
          <div class="r-row"><button class="r-key space" data-k=" ">Leerzeichen</button><button class="r-key ok" data-k="OK">Fertig ✓</button></div></div>`
-      : `<div class="r-opts">${order.map((oi, k) => `<button class="r-opt" data-oi="${oi}" style="animation-delay:${0.15 + k * 0.07}s"><span>${'ABCD'[k]}</span>${q.opts[oi]}</button>`).join('')}</div>`;
+      : `<div class="r-opts ${letterOpts ? 'letters' : ''}">${order.map((oi, k) => `<button class="r-opt" data-oi="${oi}" style="animation-delay:${0.15 + k * 0.07}s"><span>${'ABCD'[k]}</span>${letterOpts ? '' : q.opts[oi]}</button>`).join('')}</div>`;
     el.innerHTML = `<div class="r-card ${text ? 'typing' : ''}"><div class="r-tier"><b>${q.tier}</b>%<small>lösen das</small></div>
       <div class="r-q">${q.q}</div>${q.svg ? `<div class="r-svg">${q.svg}</div>` : ''}${body}${item}<div class="r-time"><i></i></div></div>`;
     el.hidden = false; requestAnimationFrame(() => el.classList.add('show'));
@@ -513,7 +516,8 @@ function loop() {
 
 // ---------- Schnittstelle für die Kapitel ----------
 const ctx = {
-  THREE, V, scene, cam, state, sleep, tween, pick, burst, stars, say, react, camShot, camFollow, showRocco, hideRocco, hud, ticker: m => ticker(m), talkingNow,
+  THREE, V, scene, cam, state, sleep, tween, pick, burst, stars, say, react, camShot, camFollow, showRocco, hideRocco, hud, ticker: m => ticker(m), talkingNow, MOBILE,
+  get models() { return models; },
   get world() { return world; }, get audio() { return audio; }, get player() { return player; }, get rival() { return rival; }, get rocco() { return rocco; }, get uhu() { return uhu; },
   get multi() { return multi; }, get riddle() { return riddle; },
 };

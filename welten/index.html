@@ -104,6 +104,7 @@
   .r-time i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #2fe39f, #ffc940); transition: width .1s linear; }
   .r-time i.urgent { background: #ff4d6d; animation: pulse .4s infinite; }
   @media (max-width: 420px) { .r-opts { grid-template-columns: 1fr; } }
+  .r-opts.letters { grid-template-columns: repeat(4, 1fr); } .r-opts.letters .r-opt { justify-content: center; min-height: 54px; } .r-opts.letters .r-opt span { width: 38px; height: 38px; font-size: 1.3rem; }
   @media (max-aspect-ratio: 3/4) { #riddle { align-items: flex-start; } }
 
   .btn-go small { display: block; font: 600 .78rem var(--font); opacity: .75; }
@@ -163,6 +164,8 @@
   @media (max-height: 560px) { .r-key { height: 34px; font-size: .9rem; } .r-typed { font-size: 1.25rem; } .r-card.typing .r-q { font-size: 1.05rem; } }
   .npc-face.baum { background: radial-gradient(circle at 35% 30%, #c79a62, #7a4f2a 60%, #4a2e14); border: 4px solid #1b1430; height: 100px; margin-top: 30px; border-radius: 40% 40% 46% 46%; }
   #talk[data-who="baum"] #talk-name { color: #3f8f2f; }
+  .npc-face.spieglein { background: radial-gradient(ellipse at 35% 30%, #ffffff, #cfe3f2 45%, #8aa7c4 75%); border: 6px solid #e8b65a; height: 112px; margin-top: 20px; border-radius: 50% / 46%; box-shadow: inset 0 0 0 3px #fff6d0; }
+  #talk[data-who="spieglein"] #talk-name { color: #b5832a; }
   .end-stats { display: flex; justify-content: center; gap: 24px; margin: 18px 0 22px; } .end-stats b { display: block; font-family: var(--display); font-size: 1.8rem; } .end-stats small { opacity: .75; }
 </style>
 <script type="importmap">{ "imports": { "three": "./vendor/three/three.module.min.js", "three/addons/": "./vendor/three/jsm/" } }</script>
