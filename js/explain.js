@@ -35,6 +35,7 @@
   function animateSvg(el) { // Linien zeichnen sich selbst
     el.querySelectorAll('path, line, polyline, polygon, circle, rect, ellipse').forEach((s, i) => {
       if (s.closest('defs')) return;
+      if (s.getAttribute('stroke-dasharray') || s.style.strokeDasharray) { s.style.opacity = '0'; s.style.animation = `exFade .5s ${0.08 * (i % 12)}s forwards`; return; } // gestrichelt bleibt gestrichelt
       s.setAttribute('pathLength', '1'); s.style.strokeDasharray = '1'; s.style.strokeDashoffset = '1';
       s.style.animation = `exDraw .9s ${0.08 * (i % 12)}s ease-out forwards`;
       if (s.getAttribute('fill') && s.getAttribute('fill') !== 'none') { s.style.fillOpacity = '0'; s.style.animation += `, exFill .4s ${0.5 + 0.08 * (i % 12)}s forwards`; }
@@ -85,7 +86,7 @@
             board.scrollTop = board.scrollHeight;
           }
           if (style === 'lupe') { // Lupe: eigene Skizze des Schritts oder wieder das Bild der Frage
-            const img = el.querySelector('.ex-lens-img'), want = s.svg || q.svg || '';
+            const img = el.querySelector('.ex-lens-img'), want = s.svg || q.svg || img.innerHTML; // ohne Fragebild: letzte Skizze bleibt stehen
             if (img.dataset.cur !== String(i) && img.innerHTML !== want) { img.innerHTML = want; if (s.svg) animateSvg(img); }
             img.dataset.cur = String(i); el.querySelector('.ex-lens').classList.toggle('zoom', i % 2 === 1 && !s.svg);
           }

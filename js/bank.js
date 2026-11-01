@@ -18,7 +18,7 @@
       ex: 'Die Anfangsbuchstaben laufen durchs Alphabet: A, B, C, D – dann E wie Esel.' },
     { id: 'a-schulnoten', fam: 'schulnoten-folge', cat: 'Logik', type: 'choice',
       q: 'Was kommt als Nächstes?' + seq(['sehr gut', 'gut', 'befriedigend', '?']),
-      opts: ['ausreichend', 'mangelhaft', 'ungenügend', 'genügend'], a: 0, r: [1, 0, 1, 0, 1],
+      opts: ['ausreichend', 'mangelhaft', 'ungenügend', 'durchschnittlich'], a: 0, r: [1, 0, 1, 0, 1],
       ex: 'Schulnoten 1 bis 6: sehr gut, gut, befriedigend, ausreichend, mangelhaft, ungenügend.' },
     { id: 'a-metamorphose', fam: 'entwicklung-schmetterling', cat: 'Logik', type: 'choice',
       q: 'Was kommt als Nächstes?' + seq(['Ei', 'Raupe', 'Puppe', '?']),
@@ -186,7 +186,7 @@
       ex: 'Das Wort „falsch“: Richtig geschrieben wird es immer f-a-l-s-c-h – also „falsch“.' },
     { id: 'a-jedes-tier', fam: 'woertlich-nehmen', cat: 'Logik', type: 'choice',
       q: 'Welche Tiere können höher springen als ein Haus?',
-      opts: ['Alle, die überhaupt springen können', 'Nur Flöhe', 'Nur Kängurus', 'Keine'], a: 0, r: [1, 3, 2, 0, 0],
+      opts: ['Alle, die überhaupt springen können', 'Nur Flöhe', 'Nur Kängurus', 'Nur Heuschrecken'], a: 0, r: [1, 3, 2, 0, 0],
       ex: 'Ein Haus kann gar nicht springen. Jedes Tier, das springen kann, springt also höher als ein Haus.' },
   ]);
 })();
@@ -1651,7 +1651,8 @@
   }
 
   // Bau von vorn
-  const VORN = [[0, 0, 0], [1, 0, 0], [2, 0, 0], [0, 1, 0], [0, 2, 0], [0, 0, 1], [0, 0, 2], [2, 0, 1], [1, 2, 0], [1, 2, 1], [2, 2, 0]];
+  // kein Würfel darf genau hinter einem anderen liegen (isometrisch fällt (x+1,y+1,z+1) auf (x,y,z)) – sonst zeigt das Bild einen zu wenig
+  const VORN = [[0, 0, 0], [1, 0, 0], [2, 0, 0], [0, 2, 0], [0, 0, 1], [0, 0, 2], [2, 0, 1], [1, 2, 0], [1, 2, 1], [2, 2, 0]];
   function gridView(x, y, cells, c = 14) {
     return cells.map(([u, v]) => `<rect x="${x + u * c}" y="${y - (v + 1) * c}" width="${c}" height="${c}" fill="${CYAN}" stroke="#0a0d24" stroke-width="1.5"/>`).join('');
   }
@@ -2370,7 +2371,7 @@
       q: 'In diesem Satz versteckt sich – <b>rückwärts</b> gelesen und über Wortgrenzen hinweg – ein Land.<br><i>„Bei Lampenlicht liest Oma.“</i>',
       a: 'MALI', r: [2, 3, 0, 2, 0], ex: 'Be<b>I LAM</b>penlicht: I-L-A-M rückwärts gelesen ergibt MALI.' },
     { id: 's-tonleiter', fam: 'tonleiter', cat: 'Sprache', type: 'text',
-      q: 'Welcher Buchstabe kommt als Nächstes?' + seq(['C', 'D', 'E', 'F', 'G', 'A', '?']),
+      q: 'Welcher Buchstabe kommt als Nächstes (in der in Deutschland üblichen Bezeichnung)?' + seq(['C', 'D', 'E', 'F', 'G', 'A', '?']),
       a: 'H', r: [1, 2, 2, 0, 1], letters: true,
       ex: 'Die deutsche Tonleiter: C, D, E, F, G, A, H. Wer im Alphabet weiterzählt, landet beim falschen B.' },
     { id: 's-caesar', fam: 'caesar', cat: 'Sprache', type: 'text',
