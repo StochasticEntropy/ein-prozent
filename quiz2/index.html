@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e0c13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="BESSERWISSER – die Quizshow für Leute, die es immer schon gewusst haben. Denkfragen, ein streitendes Moderatoren-Paar und die Frage: Wie viele Deutsche schaffen das?">
+<title>Besserwisser</title>
+<link rel="icon" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/explain.css">
+<link rel="stylesheet" href="css/show.css">
+</head>
+<body>
+<div class="beams" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<!-- Titel -->
+<section class="screen" id="title" hidden>
+  <div class="t-wrap">
+    <div class="logo big">BESSER<span>WISSER</span></div>
+    <p class="claim">Die Quizshow für Leute, die es immer schon gewusst haben.</p>
+    <div class="t-duo" aria-hidden="true"></div>
+    <div class="t-btns">
+      <button type="button" class="go" id="btn-solo">Solo spielen</button>
+      <button type="button" class="alt" id="btn-studio">Studio öffnen <small>Tablet als Bühne, Handys als Pulte</small></button>
+      <form id="join-form" class="join"><input id="join-code" maxlength="6" autocomplete="off" autocapitalize="characters" placeholder="Code" aria-label="Code der Bühne"><button type="submit" class="alt">Mitspielen</button></form>
+    </div>
+    <p class="t-foot">12 Fragen · 5 Runden · etwa 10 Minuten · <a href="../">Zurück zu „Ein Prozent“</a><br><small>Stimmen: VoxCPM2 (Apache-2.0) · Mistral Voxtral (CC BY-NC 4.0)</small></p>
+  </div>
+</section>
+
+<!-- Studio-Lobby (Bühne) -->
+<section class="screen" id="lobby" hidden>
+  <div class="lb-wrap">
+    <div class="logo">BESSER<span>WISSER</span> <em>Studio</em></div>
+    <div class="lb-grid">
+      <div class="lb-qr"></div>
+      <div>
+        <p>Mit dem Handy den Code scannen oder öffnen:</p>
+        <div class="lb-url"></div>
+        <p>Code: <b class="lb-code">····</b></p>
+        <ul class="lb-players"></ul>
+        <p class="lb-status">Öffne den Raum …</p>
+        <button type="button" class="go" disabled>Sendung starten</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Handy-Pult -->
+<section class="screen" id="pad" hidden>
+  <header class="pd-head"><div class="logo">BESSER<span>WISSER</span></div><span class="pd-score"></span></header>
+  <div class="pd-form">
+    <p>Bühne <b class="pd-code"></b></p>
+    <input class="pd-name" maxlength="16" placeholder="Dein Name" autocomplete="nickname">
+    <button type="button" class="go pd-join">Mitspielen</button>
+  </div>
+  <p class="pd-status"></p>
+  <div class="pd-main"></div>
+</section>
+
+<!-- Die Show -->
+<section class="screen" id="show" hidden>
+  <header class="bar">
+    <button type="button" class="quit" id="btn-quit" aria-label="Sendung abbrechen">×</button>
+    <span id="roundname"></span>
+    <div id="score"></div>
+  </header>
+  <div class="set">
+    <div id="duo" class="duo"></div>
+    <main class="desk">
+      <div id="timer" class="timer" hidden><span></span></div>
+      <div id="card" class="card"></div>
+      <div id="answer" class="answer"></div>
+      <div id="reveal" class="reveal" hidden></div>
+      <div id="roundcard" class="roundcard" hidden></div>
+      <div id="end" class="end" hidden></div>
+    </main>
+  </div>
+</section>
+
+<div id="toast" class="toast" hidden></div>
+
+<!-- Fragenbank des klassischen Spiels (nur gelesen) -->
+<script src="../js/calib.js"></script>
+<script src="../js/difficulty.js"></script>
+<script src="../js/questions.js"></script>
+<script src="../js/bank.js"></script>
+<script src="../js/explain-data.js"></script>
+<script src="../js/explain.js"></script>
+<script src="js/lines.js"></script>
+<script src="js/core.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/duo.js"></script>
+<script src="js/ui.js"></script>
+<script type="module" src="js/show.js"></script>
+</body>
+</html>
