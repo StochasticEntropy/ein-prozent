@@ -36,19 +36,19 @@
 .ex-duo .ex-chalk mark { background: #ffe066; }
 /* Lupe */
 .ex-lupe .ex-stage { align-items: stretch; }
-.ex-lens { flex: 0 0 auto; width: min(46%, 360px); aspect-ratio: 1; border-radius: 50%; border: 14px solid #2b1b06; background: #1b1440; box-shadow: 0 0 0 4px #ffc940, 0 14px 30px rgba(0, 0, 0, .5); overflow: hidden; display: grid; place-items: center; position: relative; }
+.ex-lens { flex: 0 0 auto; align-self: center; width: min(46%, 360px); aspect-ratio: 1; border-radius: 50%; border: 14px solid #2b1b06; background: #1b1440; box-shadow: 0 0 0 4px #ffc940, 0 14px 30px rgba(0, 0, 0, .5); overflow: hidden; display: grid; place-items: center; position: relative; }
 .ex-lens::after { content: ''; position: absolute; inset: 5% 62% 74% 9%; border-radius: 50%; background: rgba(255, 255, 255, .12); pointer-events: none; } /* Glanz nur am Rand, damit er nichts verdeckt */
 .ex-lens-img { width: 82%; transition: transform .8s cubic-bezier(.2, 1.2, .4, 1); } .ex-lens-img svg { width: 100%; height: auto; display: block; }
-.ex-lens.zoom .ex-lens-img { transform: scale(1.18); }
+.ex-lens.zoom .ex-lens-img { transform: scale(1.06); } /* stärker, und der runde Rand schneidet Randzahlen und Ecken des Bildes ab */
 .ex-lupe .ex-board { background: rgba(28, 18, 64, .96); border: 1px solid rgba(255, 255, 255, .18); font-size: clamp(1.05rem, 2.6vw, 1.3rem); font-weight: 700; }
-.ex-lupe .ex-chalk mark { background: #ffc940; color: #2a1600; border-radius: 4px; padding: 0 3px; }
+.ex-lupe .ex-chalk mark { background: #ffc940; color: #2a1600; padding: 0 3px; } /* ohne border-radius: WebKit malt sonst bei umbrochener Markierung keinen Hintergrund */
 /* Rechenweg */
 .ex-rechnung .ex-board { background-color: #fdfdf8; color: #1d2a6b; font-family: 'Caveat', cursive; font-size: clamp(1.4rem, 3.6vw, 2rem); border-radius: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
   background-image: linear-gradient(rgba(60, 110, 200, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(60, 110, 200, .18) 1px, transparent 1px); background-size: 22px 22px; align-items: flex-end; text-align: right; }
 .ex-rechnung .ex-chalk mark { background: none; color: #d62f52; font-weight: 700; }
 
 .ex-line { animation: exIn .5s cubic-bezier(.2, 1.3, .4, 1) both; }
-.ex-chalk { clip-path: inset(0 100% 0 0); animation: exWrite .9s .1s steps(28, end) forwards; }
+.ex-chalk { clip-path: inset(-0.3em 100% -0.3em -0.6em); animation: exWrite .9s .1s steps(28, end) forwards; } /* Rand über die Box hinaus: Schrägschrift ragt sonst abgeschnitten über den Rand */
 .ex-big { font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-weight: 800; font-size: clamp(2rem, 7vw, 3.4rem); letter-spacing: .06em; animation: exBig .7s cubic-bezier(.2, 1.8, .4, 1) both; }
 .ex-svg { display: flex; justify-content: center; } .ex-svg svg { width: min(100%, 340px); height: auto; max-height: 30vh; }
 .ex-final { text-align: center; align-self: stretch; }
@@ -56,7 +56,7 @@
 .ex-tafel .ex-stamp { color: #ffe066; } .ex-duo .ex-stamp, .ex-rechnung .ex-stamp { color: #1fa86b; } .ex-lupe .ex-stamp { color: #2fe39f; }
 .ex-merk { margin-top: 10px; font-family: 'Inter', system-ui, sans-serif; font-size: 1rem; font-weight: 700; opacity: .9; }
 @keyframes exIn { from { transform: translateY(14px); opacity: 0; } }
-@keyframes exWrite { to { clip-path: inset(0 0 0 0); } }
+@keyframes exWrite { to { clip-path: inset(-0.3em -0.6em -0.3em -0.6em); } }
 @keyframes exBig { from { transform: scale(2.4); opacity: 0; } }
 @keyframes exStamp { from { transform: scale(3) rotate(-15deg); opacity: 0; } }
 @keyframes exDraw { to { stroke-dashoffset: 0; } }
@@ -87,6 +87,15 @@
   .ex-face, .ex-face2 { width: 62px; height: 78px; } .ex-board { max-height: 40vh; }
 }
 @media (max-height: 520px) { .ex-board { max-height: none; min-height: 110px; } /* quer: die Tafel nimmt die ganze freie Höhe */
-  .ex-lens { width: min(46%, 48vh); border-width: 8px; } .ex-svg svg { max-height: 24vh; } .ex-face, .ex-face2 { width: 56px; height: 70px; } }
+  .ex-lens { width: min(46%, 48vh); border-width: 8px; } .ex-svg svg { max-height: 24vh; } .ex-face, .ex-face2 { width: 56px; height: 70px; }
+  /* quer ist die Tafel flach, aber breit: Anschrift und Skizze nebeneinander statt übereinander */
+  .ex-line:has(.ex-svg) { display: flex; align-items: center; gap: 16px; } .ex-line:has(.ex-svg) > :not(.ex-svg) { flex: 1 1 0; } .ex-line:has(.ex-svg) .ex-svg { flex: 0 0 45%; }
+  .ex-final { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; } .ex-final .ex-stamp { flex: 0 1 auto; max-width: 100%; }
+  .ex-final .ex-merk { flex: 1 1 240px; margin-top: 0; text-align: left; }
+  /* flach (iPhone SE quer): Kopf, Sprechblase und Knöpfe kompakter, Lupe bleibt rund */
+  .ex-panel { gap: 6px; } .ex-tag { font-size: 1rem; padding: 4px 12px; box-shadow: 0 3px 0 #c47a12; } .ex-res { padding: 3px 10px; }
+  .ex-bubble { padding: 5px 12px 7px; border-width: 3px; } .ex-text { font-size: .95rem; } .ex-who { font-size: .68rem; }
+  .ex-next { padding: 8px 18px; font-size: 1rem; } .ex-skip { padding: 7px 12px; }
+  .ex-lens { width: min(40%, 34vh); } .ex-board { min-height: 90px; } }
 
 body.explaining #talk { opacity: 0; pointer-events: none; }

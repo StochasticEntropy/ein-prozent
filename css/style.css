@@ -449,9 +449,9 @@ body.calm .beam, body.calm .floor { animation: none; }
   font-family: 'Bricolage Grotesque', 'Chalkboard SE', 'Comic Sans MS', var(--font); }
 .chalk-sol { font-size: 1.05rem; margin-bottom: 6px; }
 .chalk-sol b { color: #ffe680; font-size: 1.35rem; }
-.chalk-line { line-height: 1.5; padding: 3px 0; clip-path: inset(0 100% 0 0); animation: chalkWrite 1s steps(28, end) forwards; text-shadow: 0 0 1px rgba(255, 255, 255, .6); }
+.chalk-line { line-height: 1.5; padding: 3px 0; clip-path: inset(-0.3em 100% -0.3em -0.6em); animation: chalkWrite 1s steps(28, end) forwards; text-shadow: 0 0 1px rgba(255, 255, 255, .6); }
 .chalk-line b { color: #ffe680; }
-@keyframes chalkWrite { to { clip-path: inset(0 0 0 0); } }
+@keyframes chalkWrite { to { clip-path: inset(-0.3em -0.6em -0.3em -0.6em); } } /* Rand über die Box hinaus: Kreideschrift ragt sonst abgeschnitten über den Rand */
 
 /* Studio-Balken */
 .bars { margin-top: 14px; text-align: left; display: grid; gap: 6px; }
